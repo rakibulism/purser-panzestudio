@@ -47,5 +47,5 @@ One screen first. It is complete before any second page exists.
 
 ## Still open
 
-- The look: references, or an original direction.
+- The look: follows the references the designer sends.
 - Dark theme: after the light theme is approved.
