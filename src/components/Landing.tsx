@@ -1,12 +1,14 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import * as stylex from '@stylexjs/stylex';
 import { AGENTS, LAST, MONTH_DAYS, TODAY, agentById } from '@/lib/data';
 import { andList, cap, onDay, pct, usd, word } from '@/lib/format';
 import { SPENT, spentBy } from '@/lib/model';
-import { useGoTo, useStore } from '@/lib/store';
+import { useStore } from '@/lib/store';
 import { bp, colors } from '@/styles/tokens.stylex';
-import { Ticks } from './ui';
+import { Ticks, TileTitle } from './ui';
 
+/** The answer, then how fast the money goes beside how fast the month goes. */
 export function Landing() {
   const { limit, month, planned } = useStore();
   const gap = month.landing - limit;
@@ -17,48 +19,58 @@ export function Landing() {
       : `That is inside the ${usd(limit)} limit, with ${usd(-gap)} left${planned ? ' and nobody stopped' : ''}.`;
   return (
     <div {...stylex.props(s.wrap)}>
-      <h1 {...stylex.props(s.title)}>November lands at {usd(month.landing)}. <span {...stylex.props(s.rest)}>{rest}</span></h1>
+      <div>
+        <p {...stylex.props(s.date)}>Monday, November 23</p>
+        <h1 {...stylex.props(s.title)}>November lands at {usd(month.landing)}. <span {...stylex.props(s.rest)}>{rest}</span></h1>
+      </div>
       <div {...stylex.props(s.meters)}>
         <div>
-          <Ticks value={SPENT / limit} height={48} label={`${pct(SPENT / limit)} of the limit spent`} />
-          <p {...stylex.props(s.big)}>{pct(SPENT / limit)}</p>
-          <p {...stylex.props(s.cap)}>of the money is spent,<br />{usd(SPENT)} of {usd(limit)}</p>
+          <Ticks value={SPENT / limit} height={34} label={`${pct(SPENT / limit)} of the limit spent`} />
+          <p {...stylex.props(s.meter)}><span {...stylex.props(s.big)}>{pct(SPENT / limit)}</span><span {...stylex.props(s.cap)}>of {usd(limit)}<br />is spent</span></p>
         </div>
         <div>
-          <Ticks value={LAST / MONTH_DAYS} color={colors.ink} height={48} label={`${LAST} of ${MONTH_DAYS} days gone`} />
-          <p {...stylex.props(s.big)}>{pct(LAST / MONTH_DAYS)}</p>
-          <p {...stylex.props(s.cap)}>of the month is gone,<br />{LAST} of {MONTH_DAYS} days</p>
+          <Ticks value={LAST / MONTH_DAYS} height={34} color={colors.ink} label={`${LAST} of ${MONTH_DAYS} days gone`} />
+          <p {...stylex.props(s.meter)}><span {...stylex.props(s.big)}>{pct(LAST / MONTH_DAYS)}</span><span {...stylex.props(s.cap)}>of November<br />is gone</span></p>
         </div>
       </div>
     </div>
   );
 }
 
-/** The line under the wheel. It always holds its space, so selecting a wedge moves nothing. */
-export function WheelNote() {
-  const { selected, limitOf, month, open } = useStore();
-  const go = useGoTo();
+/** The wheel's headline. It always holds two lines, so selecting a wedge moves nothing. */
+export function WheelTitle() {
+  const { selected, select, limitOf, month, open } = useStore();
+  const router = useRouter();
   const over = AGENTS.filter((a) => month.byAgent[a.id] > limitOf(a.id));
   if (!selected) {
-    return <p {...stylex.props(s.note)}>{over.length ? `${over.length === 1 ? 'One agent is' : `${cap(word(over.length))} agents are`} on pace to pass ${over.length === 1 ? 'its limit' : 'their limits'}.` : 'Every agent is on pace to stay inside its limit.'} The dotted arc is where each one lands on the 30th.</p>;
+    return (
+      <div {...stylex.props(s.note)}><TileTitle href="/agents">
+        {over.length ? <>{cap(word(over.length))} {over.length === 1 ? 'agent' : 'agents'} will pass {over.length === 1 ? 'its limit' : 'their limits'}. </> : <>Every agent stays inside its limit. </>}
+        <span {...stylex.props(s.rest)}>Dotted arcs show where each one lands.</span>
+      </TileTitle></div>
+    );
   }
   const a = agentById(selected);
   const lands = month.byAgent[a.id], max = limitOf(a.id);
   return (
-    <p {...stylex.props(s.note)}>
-      {a.name} {spentBy(a.id) > max ? 'is already over' : lands > max ? 'is on pace to go over' : 'stays inside'} its limit, landing at {usd(lands)}.{' '}
-      <button type="button" {...stylex.props(s.link)} onClick={() => { open(a.id); go('agents', `row-${a.id}`); }}>See its runs</button>
+    <p {...stylex.props(s.note, s.noteText)}>
+      {a.name} {spentBy(a.id) > max ? 'is already over' : lands > max ? 'will pass' : 'stays inside'} its limit, <span {...stylex.props(s.rest)}>landing at {usd(lands)}.</span>{' '}
+      <button type="button" {...stylex.props(s.link)} onClick={() => { open(a.id); router.push('/ledger'); }}>See its runs</button>{' '}
+      <button type="button" {...stylex.props(s.link)} onClick={() => select(null)}>Show all</button>
     </p>
   );
 }
 
 const s = stylex.create({
-  wrap: { display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: { default: 40, [bp.phone]: 28 }, height: '100%' },
-  title: { fontSize: { default: 40, [bp.desk]: 'clamp(30px, 2.5vw, 50px)', [bp.phone]: 30 }, lineHeight: 1.1, letterSpacing: '-0.03em', fontWeight: 300, textWrap: 'pretty' },
+  wrap: { display: 'grid', gridTemplateColumns: { default: 'minmax(0, 1fr)', [bp.desk]: 'minmax(0, 1fr) minmax(0, 432px)' }, gap: { default: 24, [bp.desk]: 40, [bp.phone]: 22 }, alignItems: 'end' },
+  date: { display: { default: 'block', [bp.phone]: 'none' }, color: colors.muted, marginBottom: 6, fontSize: 14 },
+  title: { fontSize: { default: 34, [bp.desk]: 'clamp(22px, 2.02vw - (1440px - min(100vw, 1440px)) * 0.018, 38px)', [bp.phone]: 27 }, lineHeight: 1.12, letterSpacing: '-0.03em', fontWeight: 300, textWrap: 'pretty' },
   rest: { color: colors.muted },
-  meters: { display: 'grid', gridTemplateColumns: { default: '1fr 1fr', [bp.desk]: '1fr' }, gap: { default: 28, [bp.phone]: 20 } },
-  big: { fontSize: { default: 48, [bp.phone]: 44 }, lineHeight: 1, letterSpacing: '-0.04em', fontWeight: 300, marginTop: 14 },
-  cap: { color: colors.muted, marginTop: 6, fontSize: { default: 15, [bp.phone]: 14 } },
-  note: { color: colors.muted, textAlign: 'center', maxWidth: 440, marginInline: 'auto', minHeight: { default: 44, [bp.phone]: 66 }, textWrap: 'balance' },
-  link: { color: colors.ink, textDecorationLine: 'underline', textDecorationThickness: 1, textUnderlineOffset: 3, whiteSpace: 'nowrap' },
+  meters: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: { default: 28, [bp.phone]: 18 } },
+  meter: { display: 'flex', flexDirection: { default: 'row', [bp.phone]: 'column' }, alignItems: { default: 'center', [bp.phone]: 'flex-start' }, gap: { default: 12, [bp.phone]: 4 }, marginTop: 10 },
+  big: { fontSize: { default: 40, [bp.phone]: 36 }, lineHeight: 1, letterSpacing: '-0.04em', fontWeight: 300 },
+  cap: { color: colors.muted, fontSize: 14, lineHeight: 1.35 },
+  note: { minHeight: { default: 46, '@media (min-width: 1200px) and (max-width: 1399px)': 40 } },
+  noteText: { fontSize: 18, lineHeight: 1.25, letterSpacing: '-0.01em' },
+  link: { color: colors.ink, textDecorationLine: 'underline', textDecorationThickness: 1, textUnderlineOffset: 3, whiteSpace: 'nowrap', fontSize: 15, marginInlineStart: 6 },
 });

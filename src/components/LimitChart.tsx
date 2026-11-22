@@ -3,21 +3,22 @@ import { useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent
 import * as stylex from '@stylexjs/stylex';
 import { LAST, MONTH_DAYS, TODAY } from '@/lib/data';
 import { cap, num, onDay, usd, weekday, whoStops } from '@/lib/format';
-import { useEased, useWidth } from '@/lib/hooks';
+import { useEased, useSize } from '@/lib/hooks';
 import { SPENT, forecast, planFor } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
-import { Button } from './ui';
+import { Button, TileTitle } from './ui';
 
-const STEP = 500, MIN = Math.ceil((SPENT + 2000) / STEP) * STEP, MAX = 230_000, TOP = 240_000;
+const STEP = 500, MIN = Math.ceil((SPENT + 2000) / STEP) * STEP, MAX = 230_000;
 const clamp = (v: number) => Math.max(MIN, Math.min(MAX, Math.round(v / STEP) * STEP));
 
-export function LimitChart() {
+/** `brief` is the Overview tile: it fills whatever height it is given and keeps the drag. */
+export function LimitChart({ brief = false }: { brief?: boolean }) {
   const { limit, planned, off, commitLimit } = useStore();
   const [draft, setDraft] = useState<number | null>(null);
   const value = draft ?? limit;
-  const [ref, w] = useWidth<HTMLDivElement>(760);
+  const [ref, w, boxH] = useSize<HTMLDivElement>(brief ? 420 : 760, brief ? 260 : 500);
   const svg = useRef<SVGSVGElement>(null);
   const grab = useRef<{ id: number; off: number } | null>(null);
   const [hover, setHover] = useState<number | null>(null);
@@ -26,8 +27,9 @@ export function LimitChart() {
   const free = useMemo(() => forecast(value, off), [value, off]);
   const plan = useMemo(() => planFor(value, off), [value, off]);
   const bars = useEased(plan.days, 260);
-  const narrow = w < 560;
-  const H = narrow ? 300 : 500, padT = 12, padB = 28, padR = narrow ? 0 : 52;
+  const narrow = w < (brief ? 320 : 560);
+  const H = brief ? Math.max(170, boxH) : narrow ? 300 : Math.max(420, boxH), padT = brief ? 4 : 12, padB = 28, padR = narrow ? 0 : brief ? 44 : 52;
+  const TOP = brief ? 232_000 : 240_000;
   const plotW = w - padR, slot = plotW / MONTH_DAYS, bw = Math.max(3, slot * (narrow ? 0.66 : 0.7));
   const y = (v: number) => padT + (1 - v / TOP) * (H - padT - padB);
   const ly = y(value);
@@ -57,12 +59,9 @@ export function LimitChart() {
   const tip = hover !== null ? { day: hover + 1, total: plan.days[hover], today: plan.days[hover] - (plan.days[hover - 1] ?? 0) } : null;
   const tipX = hover !== null ? Math.min(Math.max(hover * slot + slot / 2, 80), plotW - 80) : 0;
 
-  return (
-    <section id="limit" aria-labelledby="limit-title" {...stylex.props(s.wrap)}>
-      <h2 id="limit-title" {...stylex.props(s.title)}>Drag the limit. <span {...stylex.props(s.muted)}>See who stops.</span></h2>
-      <div {...stylex.props(s.grid)}>
-        <div ref={ref} {...stylex.props(s.plot)}>
-          <svg ref={svg} width={w} height={H} role="group" aria-label="Spend by day in November, with the limit" {...stylex.props(s.svg)}
+  const plot = (
+        <div ref={ref} {...stylex.props(s.plot, brief ? s.plotBrief : !narrow && s.plotFull)}>
+          <svg ref={svg} width={w} height={H} role="group" aria-label="Spend by day in November, with the limit" {...stylex.props(s.svg, (brief || !narrow) && s.svgBrief)}
             onPointerMove={(e) => { if (grab.current) return; const r = e.currentTarget.getBoundingClientRect(); const i = Math.floor((e.clientX - r.left) / slot); setHover(i >= 0 && i < MONTH_DAYS ? i : null); }}
             onPointerLeave={() => setHover(null)}>
             <defs><linearGradient id={`${uid}g`} x1="0" y1="0" x2="0" y2="1"><stop stopColor={HEX.rose} /><stop offset="1" stopColor={HEX.hot} /></linearGradient></defs>
@@ -96,6 +95,29 @@ export function LimitChart() {
             </div>
           )}
         </div>
+  );
+  const set = () => { commitLimit(value, plan.stops.length ? `Limit set to ${usd(value)}. ${cap(names)} will stop.` : `Limit set to ${usd(value)}. Nobody stops.`); setDraft(null); };
+  const action = settled
+    ? <p {...stylex.props(s.muted)}>This is in force.</p>
+    : <Button onClick={set}>{value === limit ? (brief ? `Stop ${plan.stops.length === 1 ? 'it' : 'them'}` : `Keep ${usd(value)} and stop them`) : brief ? `Set ${usd(value)}` : `Set the limit to ${usd(value)}`}</Button>;
+
+  if (brief) {
+    return (
+      <section aria-label="Limit" {...stylex.props(s.brief)}>
+        <TileTitle href="/limit">Drag the limit. <span {...stylex.props(s.muted)}>See who stops.</span></TileTitle>
+        {plot}
+        <div aria-live="polite" {...stylex.props(s.briefFoot)}>
+          <p {...stylex.props(s.briefText)}><span {...stylex.props(s.briefBig)}>{usd(plan.landing)}</span>{plan.stops.length ? `if ${names} ${plan.stops.length > 1 ? 'stop' : 'stops'}, ${plan.stops[0].agent.name} first` : `and nobody stops, ${usd(value - plan.landing)} left`}</p>
+          {action}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section aria-label="Limit" {...stylex.props(s.wrap)}>
+      <div {...stylex.props(s.grid)}>
+{plot}
         <div aria-live="polite" {...stylex.props(s.side)}>
           <div>
             <p {...stylex.props(s.big)}>{usd(plan.landing)}</p>
@@ -112,9 +134,7 @@ export function LimitChart() {
             </ul>
           ) : <p {...stylex.props(s.muted)}>{usd(value - plan.landing)} would be left on the 30th.</p>}
           <div {...stylex.props(s.actions)}>
-            {settled
-              ? <p {...stylex.props(s.muted)}>This is in force.</p>
-              : <Button onClick={() => { commitLimit(value, plan.stops.length ? `Limit set to ${usd(value)}. ${cap(names)} will stop.` : `Limit set to ${usd(value)}. Nobody stops.`); setDraft(null); }}>{value === limit ? `Keep ${usd(value)} and stop them` : `Set the limit to ${usd(value)}`}</Button>}
+            {action}
             {draft !== null && draft !== limit && <Button kind="line" onClick={() => setDraft(null)}>Back to {usd(limit)}</Button>}
           </div>
           {!planned && value === limit && free.runsOut && <p {...stylex.props(s.small)}>Leave it, and all eight stop on {onDay(free.runsOut)}. Agents that cost more than they save stop first.</p>}
@@ -130,6 +150,13 @@ const s = stylex.create({
   muted: { color: colors.muted },
   grid: { display: 'grid', gridTemplateColumns: { default: '1fr', '@media (min-width: 1000px)': 'minmax(0, 1fr) 268px' }, gap: { default: 28, [bp.desk]: 36 } },
   plot: { position: 'relative', minWidth: 0 },
+  plotBrief: { flex: 1, minHeight: { default: 170, [bp.phone]: 240 } },
+  plotFull: { minHeight: 'max(420px, calc(100svh - 290px))' },
+  svgBrief: { position: 'absolute', inset: 0 },
+  brief: { display: 'flex', flexDirection: 'column', gap: 14, height: '100%' },
+  briefFoot: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 },
+  briefText: { minWidth: 0, textWrap: 'pretty', color: colors.muted, minHeight: { default: 76, '@media (min-width: 1200px) and (max-height: 879px)': 0 } },
+  briefBig: { display: 'block', fontSize: 30, fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.ink },
   svg: { overflow: 'visible', touchAction: 'pan-y', userSelect: 'none' },
   axis: { fontSize: 13, fill: colors.muted },
   limitText: { fontSize: 14, fill: colors.ink, paintOrder: 'stroke', stroke: '#FFFFFF', strokeWidth: 5, strokeLinejoin: 'round' },

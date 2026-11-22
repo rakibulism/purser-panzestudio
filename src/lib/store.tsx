@@ -5,7 +5,6 @@ import { dayPast, forecast, planFor, type Forecast, type Off } from './model';
 
 export type Decision = { kind: 'allow' | 'refuse'; amount: number; standing: boolean };
 export type LoopState = 'stopped' | 'resumed' | 'held';
-export type Tab = 'today' | 'decide' | 'limit' | 'agents';
 type Core = { limit: number; planned: boolean; decisions: Record<string, Decision>; loop: LoopState };
 
 type Store = Core & {
@@ -15,22 +14,22 @@ type Store = Core & {
   selected: AgentId | null; select: (id: AgentId | null) => void;
   opened: AgentId | null; open: (id: AgentId | null) => void;
   run: { agent: AgentId; index: number } | null; setRun: (r: { agent: AgentId; index: number } | null) => void;
-  tab: Tab; setTab: (t: Tab) => void;
+  reset: () => void;
   waiting: number;
   commitLimit: (limit: number, message: string) => void;
   decide: (id: string, d: Decision, message: string) => void;
   setLoop: (l: LoopState, message: string) => void;
   toast: { message: string; id: number } | null; undo: () => void; dismiss: () => void;
 };
+const FRESH: Core = { limit: START_LIMIT, planned: false, decisions: {}, loop: 'stopped' };
 const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [core, setCore] = useState<Core>({ limit: START_LIMIT, planned: false, decisions: {}, loop: 'stopped' });
+  const [core, setCore] = useState<Core>(FRESH);
   const [last, setLast] = useState<Core | null>(null);
   const [selected, select] = useState<AgentId | null>(null);
   const [opened, open] = useState<AgentId | null>(null);
   const [run, setRun] = useState<Store['run']>(null);
-  const [tab, setTab] = useState<Tab>('today');
   const [toast, setToast] = useState<Store['toast']>(null);
 
   const change = useCallback((patch: Partial<Core>, message: string) => {
@@ -49,7 +48,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const limitOf = useCallback((id: AgentId) => (id === 'answers' && budget?.kind === 'allow' ? budget.amount : AGENTS.find((a) => a.id === id)!.limit), [budget]);
 
   const value: Store = {
-    ...core, off, month, limitOf, selected, select, opened, open, run, setRun, tab, setTab,
+    ...core, off, month, limitOf, selected, select, opened, open, run, setRun,
+    reset: () => { change(FRESH, 'Back to Monday morning'); select(null); open(null); },
     waiting: REQUESTS.filter((r) => !core.decisions[r.id]).length,
     commitLimit: (limit, message) => change({ limit, planned: true }, message),
     decide: (id, d, message) => change({ decisions: { ...core.decisions, [id]: d } }, message),
@@ -62,22 +62,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 }
 export const useStore = () => useContext(Ctx)!;
 
-/** Where the month's work lives. Desktop scrolls to it, phones switch to its tab. */
-export const SECTIONS: { tab: Tab; id: string; label: string }[] = [
-  { tab: 'today', id: 'today', label: 'Today' },
-  { tab: 'decide', id: 'decide', label: 'Requests' },
-  { tab: 'limit', id: 'limit', label: 'Limit' },
-  { tab: 'agents', id: 'agents', label: 'Agents' },
+export type Place = 'overview' | 'requests' | 'limit' | 'agents' | 'ledger';
+export const PLACES: { id: Place; href: string; label: string }[] = [
+  { id: 'overview', href: '/', label: 'Overview' },
+  { id: 'requests', href: '/requests', label: 'Requests' },
+  { id: 'limit', href: '/limit', label: 'Limit' },
+  { id: 'agents', href: '/agents', label: 'Agents' },
+  { id: 'ledger', href: '/ledger', label: 'Ledger' },
 ];
-export function useGoTo() {
-  const { setTab } = useStore();
-  return (tab: Tab, id: string) => {
-    setTab(tab);
-    const phone = window.matchMedia('(max-width: 767px)').matches;
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (phone && SECTIONS.some((s) => s.id === id)) window.scrollTo({ top: 0 });
-      else document.getElementById(id)?.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
-    }));
-  };
-}
