@@ -3,4 +3,4 @@ import { Mark } from '@/components/Logo';
 import { HEX } from '@/styles/brand';
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
-export default function AppleIcon() { return new ImageResponse(<div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: HEX.ground }}><Mark size={116} /></div>, size); }
+export default function AppleIcon() { return new ImageResponse(<div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: HEX.ground }}><Mark size={116} ink={HEX.ink} /></div>, size); }

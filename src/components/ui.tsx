@@ -41,8 +41,8 @@ export function PageHead({ title, sub, fit = false }: { title: ReactNode; sub: R
 
 const s = stylex.create({
   base: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: { default: 40, [bp.phone]: 48 }, paddingInline: 18, borderRadius: 999, fontSize: 15, fontWeight: 450, lineHeight: 1.2, textAlign: 'center', whiteSpace: 'nowrap', flexShrink: 0, transitionProperty: 'background-color, color, border-color, scale', transitionDuration: '160ms', scale: { default: 1, ':active': 0.97 }, opacity: { default: 1, ':disabled': 0.4 }, cursor: { default: 'pointer', ':disabled': 'default' } },
-  solid: { backgroundColor: { default: colors.ink, ':hover': { default: colors.ink, '@media (hover: hover)': '#3A3A3E' } }, color: '#FFFFFF' },
-  lined: { borderWidth: 1, borderStyle: 'solid', borderColor: { default: 'rgba(23,23,26,0.28)', ':hover': colors.ink }, color: colors.ink },
+  solid: { backgroundColor: { default: colors.ink, ':hover': { default: colors.ink, '@media (hover: hover)': colors.inkHover } }, color: colors.onInk },
+  lined: { borderWidth: 1, borderStyle: 'solid', borderColor: { default: colors.lineStrong, ':hover': colors.ink }, color: colors.ink },
   smallBtn: { minHeight: { default: 32, [bp.phone]: 44 }, paddingInline: 14, fontSize: 14 },
   ticks: { display: 'flex', gap: 3, width: '100%' },
   tick: { flex: 1, minWidth: 2, borderRadius: 3, transitionProperty: 'background-color', transitionDuration: '300ms' },

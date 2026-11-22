@@ -4,7 +4,8 @@ import * as stylex from '@stylexjs/stylex';
 import { Shell } from '@/components/Shell';
 import { SITE, siteUrl } from '@/lib/site';
 import { StoreProvider } from '@/lib/store';
-import { HEX } from '@/styles/brand';
+import { themeScript } from '@/lib/theme';
+import { darkTheme } from '@/styles/themes';
 import { colors, fonts } from '@/styles/tokens.stylex';
 import './globals.css';
 
@@ -21,13 +22,14 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: SITE.name, description: SITE.tagline },
   appleWebApp: { capable: true, title: SITE.name, statusBarStyle: 'default' },
 };
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: HEX.ground };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
 
 const s = stylex.create({ body: { backgroundColor: colors.ground, color: colors.ink, fontFamily: fonts.sans } });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-US" className={sans.variable}>
+    <html lang="en-US" className={sans.variable} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript(stylex.props(darkTheme).className ?? '') }} /></head>
       <body {...stylex.props(s.body)}><StoreProvider><Shell>{children}</Shell></StoreProvider></body>
     </html>
   );

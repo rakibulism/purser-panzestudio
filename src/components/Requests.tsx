@@ -19,8 +19,8 @@ function Authority({ r, amount, mini = false }: { r: Request; amount: number; mi
   return (
     <svg viewBox="-96 -190 192 192" {...stylex.props(mini ? s.mini : s.art)} role="img" aria-label={`${usd(amount)} of ${usd(r.ask)}`}>
       <defs>
-        <linearGradient id={`${uid}a`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#C6D5C7" /><stop offset="1" stopColor="#94AA95" /></linearGradient>
-        <linearGradient id={`${uid}b`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#94AA95" /><stop offset="1" stopColor="#4F6F5B" /></linearGradient>
+        <linearGradient id={`${uid}a`} x1="0" y1="0" x2="0" y2="1"><stop stopColor={colors.askTop} /><stop offset="1" stopColor={colors.askEnd} /></linearGradient>
+        <linearGradient id={`${uid}b`} x1="0" y1="0" x2="0" y2="1"><stop stopColor={colors.mayTop} /><stop offset="1" stopColor={colors.mayEnd} /></linearGradient>
         <pattern id={`${uid}d`} width={mini ? 18 : 6} height={mini ? 18 : 6} patternUnits="userSpaceOnUse" patternTransform="translate(0 -2)"><circle cx={mini ? 9 : 3} cy={mini ? 9 : 3} r={mini ? 3.4 : 1.15} fill="#fff" /></pattern>
       </defs>
       <path d={squircle(S, S)} fill={`url(#${uid}a)`} />
@@ -49,7 +49,7 @@ function Open({ r }: { r: Request }) {
       </div>
       <label {...stylex.props(s.slide)}>
         <span {...stylex.props(s.hidden)}>Amount to allow</span>
-        <input type="range" min={r.alone} max={r.ask} step={r.step} value={amount} aria-valuetext={usd(amount)} onChange={(e) => setAmount(+e.target.value)} {...stylex.props(s.range)} style={{ backgroundImage: `linear-gradient(to right, #4F6F5B ${((amount - r.alone) / (r.ask - r.alone)) * 100}%, #DADAD8 0)` }} />
+        <input type="range" min={r.alone} max={r.ask} step={r.step} value={amount} aria-valuetext={usd(amount)} onChange={(e) => setAmount(+e.target.value)} {...stylex.props(s.range)} style={{ backgroundImage: `linear-gradient(to right, ${colors.mayEnd} ${((amount - r.alone) / (r.ask - r.alone)) * 100}%, ${colors.rail} 0)` }} />
       </label>
       <p {...stylex.props(s.why)}>{r.why} <span {...stylex.props(s.muted)}>If you refuse, {r.ifNo}</span></p>
       {r.kind === 'authority' && (
@@ -124,7 +124,7 @@ export function Requests() {
 }
 
 const show = stylex.keyframes({ from: { opacity: 0, translate: '0 -6px' }, to: { opacity: 1, translate: '0 0' } });
-const thumb = { appearance: 'none', width: 28, height: 28, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 7, borderStyle: 'solid', borderColor: '#4F6F5B', cursor: 'grab' } as const;
+const thumb = { appearance: 'none', width: 28, height: 28, borderRadius: 999, backgroundColor: colors.thumb, borderWidth: 7, borderStyle: 'solid', borderColor: colors.mayEnd, cursor: 'grab' } as const;
 const s = stylex.create({
   columns: { display: 'grid', gap: { default: 16, [bp.phone]: 12 }, gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'repeat(3, minmax(0, 1fr))' } },
   column: { display: 'grid' },

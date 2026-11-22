@@ -44,8 +44,3 @@ One screen, no scrolling on a desktop: each block below has a tile here and a fu
 - Sections lead with plain words about what happened. No stock widget kits.
 - The phone is its own native-feeling design.
 - Check every width from 375 to 1440, including 613, 768 and 860.
-
-## Still open
-
-- The look: follows the references the designer sends.
-- Dark theme: after the light theme is approved.

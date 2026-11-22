@@ -35,8 +35,8 @@ export function RunSheet() {
           <p {...stylex.props(s.muted)}>{a.name}, {time}</p>
           <h2 {...stylex.props(s.title)}>{what}</h2>
           <p {...stylex.props(s.big)}>{usdc(cost)}</p>
-          <div {...stylex.props(s.split)} aria-hidden="true">{parts.map(([l, v], i) => <span key={l} {...stylex.props(s.part)} style={{ flexGrow: v, backgroundColor: ['#FF461D', '#F3927F', '#E7B3A8'][i] }} />)}</div>
-          <ul>{parts.map(([l, v], i) => <li key={l} {...stylex.props(s.line)}><span {...stylex.props(s.key)}><i {...stylex.props(s.dot)} style={{ backgroundColor: ['#FF461D', '#F3927F', '#E7B3A8'][i] }} />{l}</span><span>{usdc(v / 100)}</span></li>)}</ul>
+          <div {...stylex.props(s.split)} aria-hidden="true">{parts.map(([l, v], i) => <span key={l} {...stylex.props(s.part)} style={{ flexGrow: v, backgroundColor: [colors.hot, colors.part2, colors.part3][i] }} />)}</div>
+          <ul>{parts.map(([l, v], i) => <li key={l} {...stylex.props(s.line)}><span {...stylex.props(s.key)}><i {...stylex.props(s.dot)} style={{ backgroundColor: [colors.hot, colors.part2, colors.part3][i] }} />{l}</span><span>{usdc(v / 100)}</span></li>)}</ul>
           <h3 {...stylex.props(s.h3)}>What it did{looped ? ', 6,180 times' : ''}</h3>
           <ol>{steps.map((x) => <li key={x} {...stylex.props(s.line)}>{x}</li>)}</ol>
           <div {...stylex.props(s.foot)}><Button kind="line" icon={Cancel01Icon} onClick={shut}>Close</Button></div>
@@ -52,9 +52,9 @@ const fade = stylex.keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
 const s = stylex.create({
   layer: { position: 'fixed', inset: 0, zIndex: 60 },
   scrim: { position: 'absolute', inset: 0, backgroundColor: colors.scrim, animationName: fade, animationDuration: '200ms' },
-  sheet: { position: 'absolute', backgroundColor: colors.paper, outline: 'none', display: 'flex', flexDirection: 'column', animationDuration: '360ms', animationTimingFunction: ease.out, animationName: { default: slide, [bp.phone]: rise }, top: { default: 0, [bp.phone]: 'auto' }, bottom: 0, insetInlineEnd: 0, width: { default: 440, [bp.phone]: '100%' }, maxHeight: { default: 'none', [bp.phone]: '88dvh' }, borderTopLeftRadius: { default: 0, [bp.phone]: 22 }, borderTopRightRadius: { default: 0, [bp.phone]: 22 } },
+  sheet: { position: 'absolute', backgroundColor: colors.raised, outline: 'none', display: 'flex', flexDirection: 'column', animationDuration: '360ms', animationTimingFunction: ease.out, animationName: { default: slide, [bp.phone]: rise }, top: { default: 0, [bp.phone]: 'auto' }, bottom: 0, insetInlineEnd: 0, width: { default: 440, [bp.phone]: '100%' }, maxHeight: { default: 'none', [bp.phone]: '88dvh' }, borderTopLeftRadius: { default: 0, [bp.phone]: 22 }, borderTopRightRadius: { default: 0, [bp.phone]: 22 } },
   grab: { display: { default: 'none', [bp.phone]: 'grid' }, placeItems: 'center', height: 28, touchAction: 'none', flexShrink: 0 },
-  grabBar: { width: 36, height: 5, borderRadius: 3, backgroundColor: colors.track },
+  grabBar: { width: 36, height: 5, borderRadius: 3, backgroundColor: colors.grab },
   body: { overflowY: 'auto', overscrollBehavior: 'contain', paddingInline: { default: 36, [bp.phone]: 20 }, paddingTop: { default: 36, [bp.phone]: 4 }, paddingBottom: 'calc(24px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', flex: 1 },
   muted: { color: colors.muted },
   title: { fontSize: 26, fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.15, marginTop: 4 },

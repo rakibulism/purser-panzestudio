@@ -24,3 +24,14 @@ Eight references, all charts. What they share: round forms, a quiet gray field, 
 - Icons are Hugeicons, stroke rounded. Nothing else is hand-drawn except the logo and the charts.
 - The Overview is one screen. Every block has a card above the fold, and its heading opens the full page.
 - The blurred field is a filled shape inside one card, never elevation.
+
+## Dark: Ember
+
+The wheel is the light source. Canvas and cards lean barely warm (#141110, #23201F, #2D2927), so hot reads as lit rather than printed.
+
+- Spend cools from hot to a dim red rim with light labels. Only a wedge over its limit stays fully bright, with dark labels.
+- Authority reverses: what an agent may do is the lit sage, what it asks for is sage in shadow. The sage card is the same sage at night.
+- Buttons and the toast use ink, so they are light on dark.
+- Cards separate from the canvas by lightness alone, as in light.
+- Every color is a token in `tokens.stylex.ts`, with its dark step in `themes.ts`. Small text keeps 4.5:1 and graphics 3:1.
+- The theme follows the system until someone picks one. The choice is applied before the first paint.
