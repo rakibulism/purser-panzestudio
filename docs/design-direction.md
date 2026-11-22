@@ -20,3 +20,5 @@ Eight references, all charts. What they share: round forms, a quiet gray field, 
 - Host Grotesk. Numbers and headlines are weight 300; nothing is bold.
 - Tiles are flush, edge to edge. No shadows, no glows, no card gaps.
 - The blurred field is a filled shape inside one tile, never elevation.
+- The Overview is one screen. Every block has a tile above the fold, and its headline opens the full page.
+- The sidebar has no panel of its own. It sits on the canvas, with the signed-in person at the bottom.
