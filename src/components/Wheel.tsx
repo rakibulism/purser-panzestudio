@@ -51,15 +51,15 @@ export function Wheel() {
             <path d={wedge(a0, a1, R0, radius(spent), ROUND, GAP)} fill={fill} stroke={fill} strokeWidth={ROUND * 2} strokeLinejoin="round" {...stylex.props(s.grow(i))} />
             <path d={arc(r, a0 + 0.05, a1 - 0.07)} fill="none" stroke={lands > 1 ? HEX.hot : '#8B8B88'} strokeWidth={2} strokeDasharray="0.1 6" strokeLinecap="round" />
             <path d="M-5 -5.5L5 0L-5 5.5Z" transform={`translate(${tx} ${ty}) rotate(${(a1 * 180) / Math.PI - 4})`} fill={lands > 1 ? HEX.hot : '#8B8B88'} />
-            <text x={lx} y={ly - (lines.length > 1 ? 14 : 5)} textAnchor="middle" {...stylex.props(s.value)}>{pct(spent)}</text>
-            {lines.map((l, k) => <text key={l} x={lx} y={ly + (lines.length > 1 ? 7 : 16) + k * 18} textAnchor="middle" {...stylex.props(s.name)}>{l}</text>)}
+            <text x={lx} y={ly - (lines.length > 1 ? 15 : 4)} textAnchor="middle" {...stylex.props(s.value)}>{pct(spent)}</text>
+            {lines.map((l, k) => <text key={l} x={lx} y={ly + (lines.length > 1 ? 8 : 20) + k * 21} textAnchor="middle" {...stylex.props(s.name)}>{l}</text>)}
           </g>
         );
       })}
       <circle r={96} fill={HEX.ground} />
       <circle r={84} fill={HEX.hot} />
-      <text y={sel ? -14 : -12} textAnchor="middle" {...stylex.props(s.hubLabel)}>{sel ? sel.name : 'Spent so far'}</text>
-      <text y={22} textAnchor="middle" {...stylex.props(s.hub)}>{usd(sel ? spentBy(sel.id) : SPENT)}</text>
+      <text y={-20} textAnchor="middle" {...stylex.props(s.hubLabel)}>{sel ? sel.lines.filter(Boolean)[0] : 'Spent'}</text>
+      <text y={17} textAnchor="middle" {...stylex.props(s.hub)}>{usd(sel ? spentBy(sel.id) : SPENT)}</text>
       <text y={46} textAnchor="middle" {...stylex.props(s.hubLabel)}>{sel ? `of ${usd(limitOf(sel.id))}` : 'through Sunday'}</text>
     </svg>
   );
@@ -67,12 +67,12 @@ export function Wheel() {
 
 const grow = stylex.keyframes({ from: { scale: '0.36' }, to: { scale: '1' } });
 const s = stylex.create({
-  svg: { width: '100%', height: '100%', maxHeight: '100%', overflow: 'visible', userSelect: 'none' },
+  svg: { width: '100%', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'visible', userSelect: 'none' },
   slice: { cursor: 'pointer', transitionProperty: 'opacity', transitionDuration: '220ms', outline: 'none', opacity: { default: 1, ':focus-visible': 1 }, strokeOpacity: 1 },
   dim: { opacity: { default: 0.42, ':hover': { default: 0.42, '@media (hover: hover)': 0.7 } } },
   grow: (i: number) => ({ transformOrigin: '0 0', animationName: grow, animationDuration: '900ms', animationTimingFunction: ease.out, animationDelay: `${i * 45}ms`, animationFillMode: 'backwards' }),
-  value: { fontSize: { default: 28, [bp.desk]: 24 }, fontWeight: 300, fill: colors.ink, letterSpacing: '-0.02em' },
-  name: { fontSize: { default: 19, [bp.desk]: 15 }, fontWeight: 400, fill: colors.ink },
-  hub: { fontSize: 32, fontWeight: 300, fill: colors.ink, letterSpacing: '-0.03em' },
-  hubLabel: { fontSize: { default: 16, [bp.desk]: 14 }, fill: colors.ink },
+  value: { fontSize: 30, fontWeight: 300, fill: colors.ink, letterSpacing: '-0.02em' },
+  name: { fontSize: 21, fontWeight: 400, fill: colors.ink },
+  hub: { fontSize: 33, fontWeight: 300, fill: colors.ink, letterSpacing: '-0.03em' },
+  hubLabel: { fontSize: 18, fill: colors.ink },
 });

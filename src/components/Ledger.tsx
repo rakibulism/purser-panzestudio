@@ -2,17 +2,16 @@
 import * as stylex from '@stylexjs/stylex';
 import { AGENTS, TEAMS } from '@/lib/data';
 import { pct, usd, usdc } from '@/lib/format';
-import { SPENT, jobsBy, spentBy } from '@/lib/model';
+import { jobsBy, spentBy } from '@/lib/model';
 import { num } from '@/lib/format';
 import { useStore } from '@/lib/store';
 import { bp, colors, ease } from '@/styles/tokens.stylex';
-import { Ticks } from './ui';
+import { Ticks, TileTitle } from './ui';
 
 export function Ledger() {
   const { month, limitOf, opened, open, setRun } = useStore();
   return (
-    <section id="ledger" aria-labelledby="ledger-title" {...stylex.props(s.wrap)}>
-      <h2 id="ledger-title" {...stylex.props(s.title)}>Who spent the {usd(SPENT)}. <span {...stylex.props(s.muted)}>Open an agent to see single runs.</span></h2>
+    <section aria-label="Ledger" {...stylex.props(s.wrap)}>
       <div {...stylex.props(s.heads)} aria-hidden="true"><span /><span>Share of limit</span><span {...stylex.props(s.end)}>Spent</span><span {...stylex.props(s.end)}>Limit</span><span {...stylex.props(s.end)}>On pace for</span></div>
       {TEAMS.map((t) => {
         const agents = AGENTS.filter((a) => a.team === t.name);
@@ -25,7 +24,7 @@ export function Ledger() {
               <span {...stylex.props(s.owner)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.photo} alt="" width={40} height={40} {...stylex.props(s.photo)} />
-                <span><span {...stylex.props(s.teamName)}>{t.name}</span><span {...stylex.props(s.sub)}>{t.owner} answers for it</span></span>
+                <span><span {...stylex.props(s.teamName)}>{t.name}</span><span {...stylex.props(s.sub)}>{t.you ? 'You answer for it' : `${t.owner} answers for it`}</span></span>
               </span>
               <span {...stylex.props(s.wideOnly)} />
               <span {...stylex.props(s.end)}>{usd(spent)}</span><span {...stylex.props(s.end, s.muted, s.wideOnly)}>{usd(cap)}</span><span {...stylex.props(s.end, s.wideOnly, lands > cap && s.bad)}>{usd(lands)}</span>
@@ -59,6 +58,33 @@ export function Ledger() {
   );
 }
 
+/** The Overview tile: each team against its limit. */
+export function TeamsBrief() {
+  const { month, limitOf } = useStore();
+  const rows = TEAMS.map((t) => {
+    const agents = AGENTS.filter((a) => a.team === t.name);
+    const add = (f: (id: (typeof agents)[number]['id']) => number) => agents.reduce((x, a) => x + f(a.id), 0);
+    return { ...t, spent: add(spentBy), cap: add(limitOf), lands: add((id) => month.byAgent[id]) };
+  });
+  const worst = [...rows].sort((a, b) => b.lands / b.cap - a.lands / a.cap)[0];
+  return (
+    <section aria-label="Spend by team" {...stylex.props(s.brief)}>
+      <TileTitle href="/ledger">{worst.lands > worst.cap ? <>{worst.name} is furthest over. <span {...stylex.props(s.muted)}>It lands {pct(worst.lands / worst.cap - 1)} past its limit.</span></> : <>Every team is inside its limit. <span {...stylex.props(s.muted)}>{worst.name} is closest.</span></>}</TileTitle>
+      <ul {...stylex.props(s.briefList)}>
+        {rows.map((t) => (
+          <li key={t.name} {...stylex.props(s.briefRow)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={t.photo} alt={t.you ? 'You' : t.owner} width={28} height={28} {...stylex.props(s.photo, s.small)} />
+            <span>{t.name}</span>
+            <Ticks value={t.spent / t.cap} count={16} height={16} label={`${pct(t.spent / t.cap)} of its limit`} />
+            <span {...stylex.props(s.end, t.lands > t.cap && s.bad)}>{usd(t.spent)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 const show = stylex.keyframes({ from: { opacity: 0, translate: '0 -4px' }, to: { opacity: 1, translate: '0 0' } });
 const COLS = 'minmax(0, 1.3fr) minmax(0, 1.4fr) 76px 76px 86px';
 const s = stylex.create({
@@ -85,5 +111,9 @@ const s = stylex.create({
   runs: { paddingInlineStart: { default: 37, [bp.phone]: 0 }, paddingBottom: 12, animationName: show, animationDuration: '260ms', animationTimingFunction: ease.out },
   run: { width: '100%', display: 'grid', gridTemplateColumns: { default: '130px 1fr auto', [bp.phone]: '1fr auto' }, gap: 12, minHeight: { default: 38, [bp.phone]: 48 }, alignItems: 'center', color: { default: colors.muted, ':hover': colors.ink } },
   runTime: { gridColumn: { default: 'auto', [bp.phone]: '1 / -1' }, fontSize: { default: 15, [bp.phone]: 13 }, marginBottom: { default: 0, [bp.phone]: -12 } },
+  small: { width: 28, height: 28 },
+  brief: { display: 'flex', flexDirection: 'column', gap: 10, height: '100%' },
+  briefList: { display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 },
+  briefRow: { display: 'grid', gridTemplateColumns: '28px minmax(0, 96px) minmax(0, 1fr) 62px', alignItems: 'center', gap: 12, minHeight: { default: 38, [bp.phone]: 46 } },
   more: { fontSize: 14, color: colors.muted, paddingTop: 6 },
 });

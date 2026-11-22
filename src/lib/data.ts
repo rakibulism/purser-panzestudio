@@ -21,18 +21,19 @@ export const AGENTS: Agent[] = [
 ];
 export const agentById = (id: AgentId) => AGENTS.find((a) => a.id === id)!;
 
-export const TEAMS = [
+export const USER = { name: 'Tom Keller', role: 'Head of finance', photo: '/people/you.jpg' };
+export const TEAMS: { name: string; owner: string; photo: string; you?: boolean }[] = [
   { name: 'Claims', owner: 'Owen Pryce', photo: '/people/owner-1.jpg' },
   { name: 'Service', owner: 'Lukas Brandt', photo: '/people/owner-2.jpg' },
   { name: 'Operations', owner: 'Emre Aydin', photo: '/people/owner-3.jpg' },
-  { name: 'Underwriting', owner: 'Tom Keller', photo: '/people/owner-4.jpg' },
+  { name: 'Underwriting', owner: 'Tom Keller', photo: '/people/you.jpg', you: true },
 ];
 
-export type Request = { id: string; agent: AgentId; ask: number; alone: number; step: number; verb: string; title: string; alonePhrase: string; why: string; ifNo: string; due: string; kind: 'authority' | 'budget' };
+export type Request = { id: string; agent: AgentId; ask: number; alone: number; step: number; verb: string; title: string; alonePhrase: string; now: string; why: string; ifNo: string; due: string; kind: 'authority' | 'budget' };
 export const REQUESTS: Request[] = [
-  { id: 'settle', agent: 'recoveries', kind: 'authority', ask: 18_500, alone: 10_000, step: 500, verb: 'settle for', title: 'Recoveries wants to settle for $18,500', alonePhrase: 'it may settle alone', why: 'A contractor’s insurer offered 82% of the $22,560 we paid for a burst pipe. Going to court took 14 months on average last year.', ifNo: 'Owen Pryce’s desk takes over the negotiation and the offer lapses.', due: 'Offer ends today at 5 PM' },
-  { id: 'claim', agent: 'claims', kind: 'authority', ask: 6_400, alone: 2_500, step: 100, verb: 'pay', title: 'Claims intake wants to pay a $6,400 claim', alonePhrase: 'it may pay alone', why: 'Kitchen leak at Maple Court. The photos match the plumber’s invoice, and fraud review scored it low risk.', ifNo: 'an adjuster picks it up, and the wait is nine days right now.', due: 'Asked Sunday, 11:52 PM' },
-  { id: 'budget', agent: 'answers', kind: 'budget', ask: 40_500, alone: 37_000, step: 500, verb: 'spend', title: 'Policy answers wants $3,500 more for November', alonePhrase: 'its limit today', why: 'A rate change letter went out on the 16th, and questions have stayed high since. It passes its limit on Friday.', ifNo: 'it stops on Friday the 27th and questions go to the phone team.', due: 'Asked Sunday, 9:05 PM' },
+  { id: 'settle', agent: 'recoveries', kind: 'authority', ask: 18_500, alone: 10_000, step: 500, verb: 'settle for', title: 'Recoveries wants to settle for $18,500', alonePhrase: 'it may settle alone', now: 'Up to $10,000 alone', why: 'A contractor’s insurer offered 82% of the $22,560 we paid for a burst pipe. Going to court took 14 months on average last year.', ifNo: 'Owen Pryce’s desk takes over the negotiation and the offer lapses.', due: 'Offer ends today at 5 PM' },
+  { id: 'claim', agent: 'claims', kind: 'authority', ask: 6_400, alone: 2_500, step: 100, verb: 'pay', title: 'Claims intake wants to pay a $6,400 claim', alonePhrase: 'it may pay alone', now: 'Up to $2,500 alone', why: 'Kitchen leak at Maple Court. The photos match the plumber’s invoice, and fraud review scored it low risk.', ifNo: 'an adjuster picks it up, and the wait is nine days right now.', due: 'Asked Sunday, 11:52 PM' },
+  { id: 'budget', agent: 'answers', kind: 'budget', ask: 40_500, alone: 37_000, step: 500, verb: 'spend', title: 'Policy answers wants $3,500 more for November', alonePhrase: 'its limit today', now: '$37,000 today', why: 'A rate change letter went out on the 16th, and questions have stayed high since. It passes its limit on Friday.', ifNo: 'it stops on Friday the 27th and questions go to the phone team.', due: 'Asked Sunday, 9:05 PM' },
 ];
 
 export const LOOP = { day: 22, cost: 4112, passes: 6180, from: '12:06 AM', to: '3:12 AM', file: 'survey file, 212 pages', queued: 1012 };

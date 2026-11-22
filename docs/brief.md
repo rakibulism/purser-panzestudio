@@ -26,7 +26,7 @@ The person who answers for AI spend at a 1,400-person insurer: finance on paper,
 
 ## The Overview screen
 
-One screen first. It is complete before any second page exists.
+One screen, no scrolling on a desktop: each block below has a tile here and a full page behind it.
 
 1. **Where the month lands.** A sentence with the answer, the spend so far, and the day the money runs out at this pace.
 2. **Set the limit.** The signature interaction: drag the limit on the spend chart and the forecast redraws, naming the agents that would stop first and the work left undone.

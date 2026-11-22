@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Host_Grotesk } from 'next/font/google';
 import * as stylex from '@stylexjs/stylex';
+import { Shell } from '@/components/Shell';
 import { SITE, siteUrl } from '@/lib/site';
 import { StoreProvider } from '@/lib/store';
 import { HEX } from '@/styles/brand';
@@ -27,7 +28,7 @@ const s = stylex.create({ body: { backgroundColor: colors.ground, color: colors.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-US" className={sans.variable}>
-      <body {...stylex.props(s.body)}><StoreProvider>{children}</StoreProvider></body>
+      <body {...stylex.props(s.body)}><StoreProvider><Shell>{children}</Shell></StoreProvider></body>
     </html>
   );
 }

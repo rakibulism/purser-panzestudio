@@ -80,18 +80,30 @@ export function useDragToClose(onClose: () => void, threshold = 90) {
   return { dy, dragging: drag.current !== null, handlers, reset };
 }
 
-/** Width of an element in CSS pixels, so a chart can be drawn at its real size. */
-export function useWidth<T extends HTMLElement>(initial: number): [RefObject<T | null>, number] {
+/** Width and height of an element in CSS pixels. */
+export function useSize<T extends HTMLElement>(w0: number, h0: number): [RefObject<T | null>, number, number] {
   const ref = useRef<T>(null);
-  const [w, setW] = useState(initial);
+  const [size, set] = useState([w0, h0]);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setW((old) => Math.round(e.contentRect.width) || old));
+    const ro = new ResizeObserver(([e]) => set((old) => [Math.round(e.contentRect.width) || old[0], Math.round(e.contentRect.height) || old[1]]));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  return [ref, w];
+  return [ref, size[0], size[1]];
+}
+
+/** Closes a popover when a pointer goes down outside it. */
+export function useOutside(open: boolean, ref: RefObject<HTMLElement | null>, close: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const down = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) close(); };
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('pointerdown', down);
+    document.addEventListener('keydown', key);
+    return () => { document.removeEventListener('pointerdown', down); document.removeEventListener('keydown', key); };
+  }, [open, ref, close]);
 }
 
 /** Eases a list of numbers toward its target. Starts at the target, so the first paint is final. */
