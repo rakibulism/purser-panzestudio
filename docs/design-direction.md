@@ -17,8 +17,10 @@ Eight references, all charts. What they share: round forms, a quiet gray field, 
 
 - Hot means money spent. Sage means authority. Nothing else gets a color.
 - The eight agents keep the same angle on the wheel and on the radar.
-- Host Grotesk. Numbers and headlines are weight 300; nothing is bold.
-- Tiles are flush, edge to edge. No shadows, no glows, no card gaps.
-- The blurred field is a filled shape inside one tile, never elevation.
-- The Overview is one screen. Every block has a tile above the fold, and its headline opens the full page.
-- The sidebar has no panel of its own. It sits on the canvas, with the signed-in person at the bottom.
+- Host Grotesk. Figures are weight 300. Titles are weight 400 (h1) and 500 (h2).
+- One grid: three equal columns on a desktop, two on a tablet, one on a phone. 24px page margin, 16px gutter, 20px card padding, 16px radius. Spacing comes from 4, 8, 12, 16, 20, 24.
+- Every page and card opens with a title and a subtitle under it: h1 30 with 16, h2 17 with 14.
+- Cards are flat white (one sage) on the gray canvas. No shadows, no glows, no borders.
+- Icons are Hugeicons, stroke rounded. Nothing else is hand-drawn except the logo and the charts.
+- The Overview is one screen. Every block has a card above the fold, and its heading opens the full page.
+- The blurred field is a filled shape inside one card, never elevation.

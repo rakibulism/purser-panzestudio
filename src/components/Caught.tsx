@@ -7,7 +7,8 @@ import { num, onDay, usd } from '@/lib/format';
 import { useStore } from '@/lib/store';
 import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
-import { Button, TileTitle } from './ui';
+import { PlayIcon, PowerIcon } from '@hugeicons/core-free-icons';
+import { Button, CardHead } from './ui';
 
 const CLOCK = (h: number, m: number) => ((h * 60 + m) / 720) * Math.PI * 2;
 
@@ -41,14 +42,14 @@ export function Caught({ brief = false }: { brief?: boolean }) {
   const cutDay = cut && (cut.from === TODAY ? 'today' : `on ${onDay(cut.from)}`);
   const actions = (
     <div {...stylex.props(s.actions)}>
-      {loop !== 'resumed' && <Button size={brief ? 'small' : 'normal'} onClick={() => setLoop('resumed', cut ? `Document reading may work again, until your limit stops it ${cutDay}` : 'Document reading is working again, without that file')}>{brief ? 'Resume' : 'Resume without that file'}</Button>}
-      {loop !== 'held' && <Button size={brief ? 'small' : 'normal'} kind="line" onClick={() => setLoop('held', 'Document reading stays off')}>{loop === 'resumed' ? 'Turn it off' : 'Keep it off'}</Button>}
+      {loop !== 'resumed' && <Button size={brief ? 'small' : 'normal'} icon={PlayIcon} onClick={() => setLoop('resumed', cut ? `Document reading may work again, until your limit stops it ${cutDay}` : 'Document reading is working again, without that file')}>{brief ? 'Resume' : 'Resume without that file'}</Button>}
+      {loop !== 'held' && <Button size={brief ? 'small' : 'normal'} kind="line" icon={PowerIcon} onClick={() => setLoop('held', 'Document reading stays off')}>{loop === 'resumed' ? 'Turn it off' : 'Keep it off'}</Button>}
     </div>
   );
   if (brief) {
     return (
       <section aria-label="Caught overnight" {...stylex.props(s.brief)}>
-        <TileTitle href="/agents">Document reading looped {num(LOOP.passes)} times. <span {...stylex.props(s.soft)}>{loop === 'stopped' ? `Stopped Sunday at ${LOOP.to}.` : loop === 'held' ? 'It stays off.' : cut ? `Your limit stops it ${cutDay}.` : 'It is working again.'}</span></TileTitle>
+        <CardHead href="/agents" title={`Document reading looped ${num(LOOP.passes)} times`} sub={<span {...stylex.props(s.soft)}>{loop === 'stopped' ? `Stopped Sunday at ${LOOP.to}` : loop === 'held' ? 'It stays off' : cut ? `Your limit stops it ${cutDay}` : 'It is working again'}</span>} />
         <div {...stylex.props(s.briefBody)}>
           <div {...stylex.props(s.briefText)}><p><span {...stylex.props(s.briefBig)}>{usd(LOOP.cost)}</span>spent on one file</p>{actions}</div>
           <LoopArt brief still={loop !== 'stopped'} />
@@ -57,9 +58,10 @@ export function Caught({ brief = false }: { brief?: boolean }) {
     );
   }
   return (
-    <section aria-labelledby="caught-title" {...stylex.props(s.wrap)}>
+    <section aria-label="Caught overnight" {...stylex.props(s.wrap)}>
       <div {...stylex.props(s.words)}>
-      <h2 id="caught-title" {...stylex.props(s.title)}>Document reading went in circles {num(LOOP.passes)} times and spent {usd(LOOP.cost)}. <span {...stylex.props(s.soft)}>Purser stopped it at {LOOP.to} on Sunday.</span></h2>
+      <CardHead title={`Document reading looped ${num(LOOP.passes)} times`} sub={<span {...stylex.props(s.soft)}>Purser stopped it on Sunday at {LOOP.to}</span>} />
+      <p><span {...stylex.props(s.huge)}>{usd(LOOP.cost)}</span>spent on one file</p>
       <div {...stylex.props(s.foot)}>
         <p {...stylex.props(s.text)}>
           {loop === 'stopped' && <>It kept asking for a better scan of one {LOOP.file}, and kept getting the same one. {num(LOOP.queued)} documents are queued behind it.</>}
@@ -76,17 +78,17 @@ export function Caught({ brief = false }: { brief?: boolean }) {
 
 const turn = stylex.keyframes({ to: { rotate: '360deg' } });
 const s = stylex.create({
-  wrap: { display: 'grid', gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'minmax(0, 1fr) minmax(0, 1fr)' }, gap: 28, alignItems: 'center', maxWidth: 1100 },
-  words: { display: 'flex', flexDirection: 'column', gap: 24 },
-  title: { fontSize: { default: 34, [bp.phone]: 24 }, fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.15, textWrap: 'pretty' },
+  wrap: { display: 'grid', gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'minmax(0, 1fr) minmax(0, 1fr)' }, gap: 28, alignItems: 'center', },
+  words: { display: 'flex', flexDirection: 'column', gap: 20 },
+  huge: { display: 'block', fontSize: 44, lineHeight: 1.1, fontWeight: 300, letterSpacing: '-0.04em' },
   soft: { color: '#2B3A2F' },
   art: { width: '100%', maxWidth: 420, marginInline: 'auto', overflow: 'visible' },
   time: { fontSize: 14, fill: colors.ink },
   word: { fontSize: 15, fill: colors.ink },
   spin: { transformOrigin: '0 0', animationName: turn, animationDuration: '7s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' },
   still: { animationName: 'none' },
-  artBrief: { position: 'absolute', insetInlineEnd: 0, top: 0, width: 'auto', height: { default: 'calc(100% - 40px)', [bp.phone]: 'calc(100% - 4px)' }, maxWidth: '46%', overflow: 'visible' },
-  brief: { display: 'flex', flexDirection: 'column', gap: 8, height: '100%', minHeight: 0 },
+  artBrief: { position: 'absolute', insetInlineEnd: 0, top: 0, width: 'auto', height: { default: 'calc(100% - 40px)', [bp.phone]: 'calc(100% - 52px)' }, maxWidth: '46%', overflow: 'visible' },
+  brief: { display: 'flex', flexDirection: 'column', gap: 12, height: '100%', minHeight: 0 },
   briefBody: { position: 'relative', display: 'flex', gap: 10, flex: 1, minHeight: { default: 0, [bp.phone]: 170 }, height: { default: 0, [bp.phone]: 170 }, justifyContent: 'space-between' },
   briefBig: { display: 'block', fontSize: { default: 34, '@media (min-width: 1200px) and (max-height: 879px)': 28 }, fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1.15 },
   briefText: { position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 14, flex: 1, minWidth: 0 },

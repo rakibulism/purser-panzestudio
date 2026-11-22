@@ -1,18 +1,23 @@
 import type { ReactNode } from 'react';
 import * as stylex from '@stylexjs/stylex';
-import { bp, colors } from '@/styles/tokens.stylex';
+import { bp, colors, SHORT, space } from '@/styles/tokens.stylex';
 
-/** Flush bands for the full pages. */
-export function Band({ tone = 'ground', grow = false, children }: { tone?: 'ground' | 'paper' | 'sage'; grow?: boolean; children: ReactNode }) {
-  return <div {...stylex.props(s.band, s[tone], grow && s.grow)}>{children}</div>;
+/** The one surface everything sits on: same padding, same radius, everywhere. */
+export function Card({ tone = 'paper', children, style }: { tone?: 'paper' | 'sage'; children: ReactNode; style?: stylex.StyleXStyles }) {
+  return <div {...stylex.props(s.card, s[tone], style)}>{children}</div>;
 }
+
+/** A full page: heading, then cards on the shared gutter. */
 export const Page = ({ children }: { children: ReactNode }) => <div {...stylex.props(s.page)}>{children}</div>;
+export const Columns = ({ children, kind = 'even' }: { children: ReactNode; kind?: 'even' | 'lead' | 'thirds' }) => <div {...stylex.props(s.columns, s[kind])}>{children}</div>;
 
 const s = stylex.create({
-  page: { display: 'flex', flexDirection: 'column', minHeight: { default: '100svh', [bp.phone]: 'calc(100svh - 160px)' } },
-  band: { paddingInline: { default: 28, [bp.desk]: 36, [bp.phone]: 20 }, paddingBlock: { default: 32, [bp.phone]: 22 }, minWidth: 0 },
-  grow: { flex: 1 },
-  ground: {},
+  card: { borderRadius: { default: 16, [bp.phone]: 18 }, padding: { default: space.card, [SHORT.q]: 16, [bp.phone]: 16 }, minWidth: 0, minHeight: 0 },
   paper: { backgroundColor: colors.paper },
   sage: { backgroundColor: colors.sage },
+  page: { display: 'flex', flexDirection: 'column', gap: { default: space.gutter, [bp.phone]: 12 }, padding: { default: space.page, [bp.phone]: 16 }, paddingTop: { default: space.page, [bp.phone]: 0 } },
+  columns: { display: 'grid', gap: { default: space.gutter, [bp.phone]: 12 } },
+  even: { gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'repeat(2, minmax(0, 1fr))' } },
+  lead: { gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'minmax(0, 2fr) minmax(0, 1fr)' } },
+  thirds: { gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'repeat(3, minmax(0, 1fr))' } },
 });

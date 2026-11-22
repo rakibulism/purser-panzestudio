@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import type { IconSvgElement } from '@hugeicons/react';
+import { ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import * as stylex from '@stylexjs/stylex';
+import { Icon } from './Icon';
 import { bp, colors } from '@/styles/tokens.stylex';
 
-export function Button({ kind = 'solid', size = 'normal', children, ...rest }: { kind?: 'solid' | 'line'; size?: 'normal' | 'small' } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'style'>) {
-  return <button type="button" {...rest} {...stylex.props(s.base, kind === 'solid' ? s.solid : s.lined, size === 'small' && s.smallBtn)}>{children}</button>;
+export function Button({ kind = 'solid', size = 'normal', icon, children, ...rest }: { kind?: 'solid' | 'line'; size?: 'normal' | 'small'; icon?: IconSvgElement } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'style'>) {
+  return <button type="button" {...rest} {...stylex.props(s.base, kind === 'solid' ? s.solid : s.lined, size === 'small' && s.smallBtn, icon && s.iconed)}>{icon && <Icon icon={icon} size={size === 'small' ? 16 : 18} stroke={1.8} />}{children}</button>;
 }
 
 /** Twenty-five to thirty ticks, the last few lit ones fading, as in the metrics reference. */
@@ -22,21 +25,18 @@ export function Ticks({ value, count = 30, height = 56, color = colors.hot, off 
   );
 }
 
-/** A tile's headline on the Overview. The whole line opens the page behind it. */
-export function TileTitle({ href, children }: { href: string; children: ReactNode }) {
+/** Every card opens the same way: a title, and a subtitle under it. With `href`, the pair opens the full page. */
+export function CardHead({ title, sub, href }: { title: ReactNode; sub: ReactNode; href?: string }) {
+  const text = <div {...stylex.props(s.headText)}><h2 {...stylex.props(s.h2)}>{title}</h2><p {...stylex.props(s.sub)}>{sub}</p></div>;
+  if (!href) return <header {...stylex.props(s.head)}>{text}</header>;
   return (
-    <h2 {...stylex.props(s.tileTitle)}>
-      <Link href={href} {...stylex.props(s.tileLink, stylex.defaultMarker())}>
-        <span>{children}</span>
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" {...stylex.props(s.arrow)}><path d="M5 13L13 5M6.5 5H13v6.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-      </Link>
-    </h2>
+    <header><Link href={href} {...stylex.props(s.head, stylex.defaultMarker())}>{text}<span {...stylex.props(s.arrow)}><Icon icon={ArrowUpRight01Icon} /></span></Link></header>
   );
 }
 
-/** The headline of a full page. */
-export function PageTitle({ lead, rest }: { lead: ReactNode; rest: ReactNode }) {
-  return <h1 {...stylex.props(s.pageTitle)}>{lead} <span {...stylex.props(s.rest)}>{rest}</span></h1>;
+/** The heading of a page: h1 and its subtitle. */
+export function PageHead({ title, sub, fit = false }: { title: ReactNode; sub: ReactNode; fit?: boolean }) {
+  return <header {...stylex.props(s.pageHead)}><h1 {...stylex.props(s.h1, fit && s.h1Fit)}>{title}</h1><p {...stylex.props(s.lead)}>{sub}</p></header>;
 }
 
 const s = stylex.create({
@@ -46,9 +46,14 @@ const s = stylex.create({
   smallBtn: { minHeight: { default: 32, [bp.phone]: 44 }, paddingInline: 14, fontSize: 14 },
   ticks: { display: 'flex', gap: 3, width: '100%' },
   tick: { flex: 1, minWidth: 2, borderRadius: 3, transitionProperty: 'background-color', transitionDuration: '300ms' },
-  rest: { color: colors.muted },
-  tileTitle: { fontSize: { default: 18, '@media (min-width: 1200px) and (max-width: 1399px)': 16 }, lineHeight: 1.25, letterSpacing: '-0.01em' },
-  tileLink: { display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' },
-  arrow: { flexShrink: 0, marginTop: 2, color: { default: colors.muted, [stylex.when.ancestor(':hover')]: colors.ink } },
-  pageTitle: { fontSize: { default: 40, [bp.phone]: 28 }, lineHeight: 1.1, fontWeight: 300, letterSpacing: '-0.03em', textWrap: 'pretty', maxWidth: 860 },
+  head: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+  headText: { minWidth: 0 },
+  h2: { fontSize: 17, fontWeight: 500, lineHeight: '22px', letterSpacing: '-0.01em', textWrap: 'pretty' },
+  sub: { fontSize: 14, lineHeight: '20px', color: colors.muted, marginTop: 2, textWrap: 'pretty' },
+  arrow: { flexShrink: 0, color: { default: colors.muted, [stylex.when.ancestor(':hover')]: colors.ink } },
+  pageHead: { paddingBlock: { default: 4, [bp.phone]: 0 }, paddingBottom: { default: 8, [bp.phone]: 4 } },
+  h1: { fontSize: { default: 30, [bp.phone]: 26 }, fontWeight: 400, lineHeight: 1.15, letterSpacing: '-0.025em', textWrap: 'pretty' },
+  h1Fit: { fontSize: { default: 30, [bp.desk]: 'clamp(22px, 1.88vw, 34px)', [bp.phone]: 26 } },
+  lead: { fontSize: 16, lineHeight: 1.4, color: colors.muted, marginTop: 6, maxWidth: 640, textWrap: 'pretty' },
+  iconed: { gap: 7, paddingInlineStart: 13 },
 });

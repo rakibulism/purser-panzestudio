@@ -6,6 +6,7 @@ import { usdc } from '@/lib/format';
 import { useDismissable, useDragToClose } from '@/lib/hooks';
 import { useStore } from '@/lib/store';
 import { bp, colors, ease } from '@/styles/tokens.stylex';
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
 import { Button } from './ui';
 
 const close = (set: (r: null) => void) => () => set(null);
@@ -38,7 +39,7 @@ export function RunSheet() {
           <ul>{parts.map(([l, v], i) => <li key={l} {...stylex.props(s.line)}><span {...stylex.props(s.key)}><i {...stylex.props(s.dot)} style={{ backgroundColor: ['#FF461D', '#F3927F', '#E7B3A8'][i] }} />{l}</span><span>{usdc(v / 100)}</span></li>)}</ul>
           <h3 {...stylex.props(s.h3)}>What it did{looped ? ', 6,180 times' : ''}</h3>
           <ol>{steps.map((x) => <li key={x} {...stylex.props(s.line)}>{x}</li>)}</ol>
-          <div {...stylex.props(s.foot)}><Button kind="line" onClick={shut}>Close</Button></div>
+          <div {...stylex.props(s.foot)}><Button kind="line" icon={Cancel01Icon} onClick={shut}>Close</Button></div>
         </div>
       </div>
     </div>

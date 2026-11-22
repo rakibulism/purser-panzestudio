@@ -8,7 +8,9 @@ import { SPENT, forecast, planFor } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
-import { Button, TileTitle } from './ui';
+import { ArrowTurnBackwardIcon, StopIcon, Tick02Icon } from '@hugeicons/core-free-icons';
+import { Card, Columns } from './Page';
+import { Button, CardHead } from './ui';
 
 const STEP = 500, MIN = Math.ceil((SPENT + 2000) / STEP) * STEP, MAX = 230_000;
 const clamp = (v: number) => Math.max(MIN, Math.min(MAX, Math.round(v / STEP) * STEP));
@@ -98,16 +100,16 @@ export function LimitChart({ brief = false }: { brief?: boolean }) {
   );
   const set = () => { commitLimit(value, plan.stops.length ? `Limit set to ${usd(value)}. ${cap(names)} will stop.` : `Limit set to ${usd(value)}. Nobody stops.`); setDraft(null); };
   const action = settled
-    ? <p {...stylex.props(s.muted)}>This is in force.</p>
-    : <Button onClick={set}>{value === limit ? (brief ? `Stop ${plan.stops.length === 1 ? 'it' : 'them'}` : `Keep ${usd(value)} and stop them`) : brief ? `Set ${usd(value)}` : `Set the limit to ${usd(value)}`}</Button>;
+    ? <p {...stylex.props(s.small)}>This is in force.</p>
+    : <Button size={brief ? 'small' : 'normal'} icon={plan.stops.length ? StopIcon : Tick02Icon} onClick={set}>{value === limit ? (brief ? `Stop ${plan.stops.length === 1 ? 'it' : 'them'}` : `Keep ${usd(value)} and stop them`) : brief ? `Set ${usd(value)}` : `Set the limit to ${usd(value)}`}</Button>;
 
   if (brief) {
     return (
       <section aria-label="Limit" {...stylex.props(s.brief)}>
-        <TileTitle href="/limit">Drag the limit. <span {...stylex.props(s.muted)}>See who stops.</span></TileTitle>
+        <CardHead href="/limit" title="Drag the limit" sub="See who stops, and what it saves" />
         {plot}
         <div aria-live="polite" {...stylex.props(s.briefFoot)}>
-          <p {...stylex.props(s.briefText)}><span {...stylex.props(s.briefBig)}>{usd(plan.landing)}</span>{plan.stops.length ? `if ${names} ${plan.stops.length > 1 ? 'stop' : 'stops'}, ${plan.stops[0].agent.name} first` : `and nobody stops, ${usd(value - plan.landing)} left`}</p>
+          <div {...stylex.props(s.briefText)}><p {...stylex.props(s.briefBig)}>{usd(plan.landing)}</p><p {...stylex.props(s.small)}>{plan.stops.length ? `if ${names} ${plan.stops.length > 1 ? 'stop' : 'stops'}, ${plan.stops[0].agent.name} first` : `and nobody stops, ${usd(value - plan.landing)} left`}</p></div>
           {action}
         </div>
       </section>
@@ -115,14 +117,12 @@ export function LimitChart({ brief = false }: { brief?: boolean }) {
   }
 
   return (
-    <section aria-label="Limit" {...stylex.props(s.wrap)}>
-      <div {...stylex.props(s.grid)}>
-{plot}
+    <Columns kind="lead">
+      <Card><section aria-label="Limit" {...stylex.props(s.wrap)}><CardHead title="Spend by day" sub="Drag the dashed line to move the limit" />{plot}</section></Card>
+      <Card>
         <div aria-live="polite" {...stylex.props(s.side)}>
-          <div>
-            <p {...stylex.props(s.big)}>{usd(plan.landing)}</p>
-            <p {...stylex.props(s.lead)}>{plan.stops.length ? `if ${names} ${plan.stops.length > 1 ? 'stop' : 'stops'}` : 'and nobody stops'}</p>
-          </div>
+          <CardHead title={plan.stops.length ? `${cap(names)} ${plan.stops.length > 1 ? 'stop' : 'stops'}` : 'Nobody stops'} sub={`To stay under ${usd(value)}`} />
+          <div><p {...stylex.props(s.big)}>{usd(plan.landing)}</p><p {...stylex.props(s.small)}>where November lands</p></div>
           {plan.stops.length > 0 ? (
             <ul {...stylex.props(s.stops)}>
               {plan.stops.map((x) => (
@@ -132,40 +132,37 @@ export function LimitChart({ brief = false }: { brief?: boolean }) {
                 </li>
               ))}
             </ul>
-          ) : <p {...stylex.props(s.muted)}>{usd(value - plan.landing)} would be left on the 30th.</p>}
+          ) : <p {...stylex.props(s.small)}>{usd(value - plan.landing)} would be left on the 30th.</p>}
+          {!planned && value === limit && free.runsOut && <p {...stylex.props(s.small)}>Leave it, and all eight stop on {onDay(free.runsOut)}. Agents that cost more than they save stop first.</p>}
           <div {...stylex.props(s.actions)}>
             {action}
-            {draft !== null && draft !== limit && <Button kind="line" onClick={() => setDraft(null)}>Back to {usd(limit)}</Button>}
+            {draft !== null && draft !== limit && <Button kind="line" icon={ArrowTurnBackwardIcon} onClick={() => setDraft(null)}>Back to {usd(limit)}</Button>}
           </div>
-          {!planned && value === limit && free.runsOut && <p {...stylex.props(s.small)}>Leave it, and all eight stop on {onDay(free.runsOut)}. Agents that cost more than they save stop first.</p>}
         </div>
-      </div>
-    </section>
+      </Card>
+    </Columns>
   );
 }
 
 const s = stylex.create({
-  wrap: { display: 'flex', flexDirection: 'column', gap: 24, height: '100%' },
-  title: { fontSize: { default: 26, [bp.phone]: 24 }, fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.15 },
+  wrap: { display: 'flex', flexDirection: 'column', gap: 20, height: '100%' },
   muted: { color: colors.muted },
-  grid: { display: 'grid', gridTemplateColumns: { default: '1fr', '@media (min-width: 1000px)': 'minmax(0, 1fr) 268px' }, gap: { default: 28, [bp.desk]: 36 } },
-  plot: { position: 'relative', minWidth: 0 },
+  plot: { position: 'relative', minWidth: 0, overflowX: 'clip' },
   plotBrief: { flex: 1, minHeight: { default: 170, [bp.phone]: 240 } },
-  plotFull: { minHeight: 'max(420px, calc(100svh - 290px))' },
+  plotFull: { flex: 1, minHeight: 'max(400px, calc(100svh - 250px))' },
   svgBrief: { position: 'absolute', inset: 0 },
-  brief: { display: 'flex', flexDirection: 'column', gap: 14, height: '100%' },
-  briefFoot: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 },
-  briefText: { minWidth: 0, textWrap: 'pretty', color: colors.muted, minHeight: { default: 76, '@media (min-width: 1200px) and (max-height: 879px)': 0 } },
-  briefBig: { display: 'block', fontSize: 30, fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.ink },
+  brief: { display: 'flex', flexDirection: 'column', gap: 16, height: '100%' },
+  briefFoot: { display: 'flex', flexWrap: { default: 'nowrap', '@media (min-width: 768px) and (max-width: 899px)': 'wrap' }, justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 },
+  briefText: { minWidth: 0 },
+  briefBig: { fontSize: 32, lineHeight: '38px', fontWeight: 300, letterSpacing: '-0.035em' },
   svg: { overflow: 'visible', touchAction: 'pan-y', userSelect: 'none' },
   axis: { fontSize: 13, fill: colors.muted },
   limitText: { fontSize: 14, fill: colors.ink, paintOrder: 'stroke', stroke: '#FFFFFF', strokeWidth: 5, strokeLinejoin: 'round' },
   handle: { cursor: { default: 'ns-resize' }, touchAction: 'none' },
   knob: { transitionProperty: 'r', transitionDuration: '160ms', r: { default: 11, ':hover': 13 } },
   tip: { position: 'absolute', bottom: 44, translate: '-50% 0', pointerEvents: 'none', display: 'flex', flexDirection: 'column', backgroundColor: '#FFFFFF', borderWidth: 1, borderStyle: 'solid', borderColor: colors.line, borderRadius: 10, paddingInline: 12, paddingBlock: 8, fontSize: 13, whiteSpace: 'nowrap' },
-  side: { display: 'flex', flexDirection: 'column', gap: 18 },
+  side: { display: 'flex', flexDirection: 'column', gap: 20, height: '100%' },
   big: { fontSize: 44, fontWeight: 300, letterSpacing: '-0.04em', lineHeight: 1 },
-  lead: { marginTop: 8, textWrap: 'pretty' },
   stops: { borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line },
   stop: { display: 'grid', gridTemplateColumns: '1fr auto', columnGap: 12, paddingBlock: 9, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: colors.line },
   when: { color: colors.hotDeep },
