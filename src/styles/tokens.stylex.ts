@@ -8,6 +8,12 @@ export const bp = stylex.defineConsts({
   hover: '@media (hover: hover)',
 });
 
+/** Short laptop screens, where the Overview still has to fit. */
+export const SHORT = stylex.defineConsts({ q: '@media (min-width: 1200px) and (max-height: 879px)', tall: '@media (min-width: 1200px) and (min-height: 880px)' });
+
+/** One spacing scale: 4, 8, 12, 16, 20, 24. */
+export const space = stylex.defineConsts({ page: '24px', gutter: '16px', card: '20px' });
+
 export const colors = stylex.defineVars({
   ground: '#EAEAE9',
   paper: '#FFFFFF',

@@ -15,6 +15,8 @@
     "check": "tsc --noEmit && next build"
   },
   "dependencies": {
+    "@hugeicons/core-free-icons": "4.4.0",
+    "@hugeicons/react": "1.1.10",
     "@stylexjs/stylex": "0.19.2",
     "next": "16.4.6",
     "react": "19.3.1",

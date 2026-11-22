@@ -5,36 +5,38 @@ import { pct, usd, usdc } from '@/lib/format';
 import { jobsBy, spentBy } from '@/lib/model';
 import { num } from '@/lib/format';
 import { useStore } from '@/lib/store';
-import { bp, colors, ease } from '@/styles/tokens.stylex';
-import { Ticks, TileTitle } from './ui';
+import { bp, colors, ease, SHORT } from '@/styles/tokens.stylex';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { Icon } from './Icon';
+import { Card } from './Page';
+import { CardHead, Ticks } from './ui';
 
 export function Ledger() {
   const { month, limitOf, opened, open, setRun } = useStore();
   return (
     <section aria-label="Ledger" {...stylex.props(s.wrap)}>
-      <div {...stylex.props(s.heads)} aria-hidden="true"><span /><span>Share of limit</span><span {...stylex.props(s.end)}>Spent</span><span {...stylex.props(s.end)}>Limit</span><span {...stylex.props(s.end)}>On pace for</span></div>
       {TEAMS.map((t) => {
         const agents = AGENTS.filter((a) => a.team === t.name);
         const spent = agents.reduce((x, a) => x + spentBy(a.id), 0);
         const cap = agents.reduce((x, a) => x + limitOf(a.id), 0);
         const lands = agents.reduce((x, a) => x + month.byAgent[a.id], 0);
         return (
-          <div key={t.name} {...stylex.props(s.team)}>
+          <Card key={t.name}>
             <div {...stylex.props(s.row, s.teamRow)}>
               <span {...stylex.props(s.owner)}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.photo} alt="" width={40} height={40} {...stylex.props(s.photo)} />
-                <span><span {...stylex.props(s.teamName)}>{t.name}</span><span {...stylex.props(s.sub)}>{t.you ? 'You answer for it' : `${t.owner} answers for it`}</span></span>
+                <span><h2 {...stylex.props(s.teamName)}>{t.name}</h2><span {...stylex.props(s.sub)}>{t.you ? 'You answer for it' : `${t.owner} answers for it`}</span></span>
               </span>
               <span {...stylex.props(s.wideOnly)} />
-              <span {...stylex.props(s.end)}>{usd(spent)}</span><span {...stylex.props(s.end, s.muted, s.wideOnly)}>{usd(cap)}</span><span {...stylex.props(s.end, s.wideOnly, lands > cap && s.bad)}>{usd(lands)}</span>
+              <span {...stylex.props(s.end)}><span {...stylex.props(s.col)}>Spent</span>{usd(spent)}</span><span {...stylex.props(s.end, s.muted, s.wideOnly)}><span {...stylex.props(s.col)}>Limit</span>{usd(cap)}</span><span {...stylex.props(s.end, s.wideOnly, lands > cap && s.bad)}><span {...stylex.props(s.col)}>On pace for</span>{usd(lands)}</span>
             </div>
             {agents.map((a) => {
               const on = opened === a.id, v = spentBy(a.id) / limitOf(a.id);
               return (
                 <div key={a.id} id={`row-${a.id}`}>
                   <button type="button" aria-expanded={on} onClick={() => open(on ? null : a.id)} {...stylex.props(s.row, s.agentRow)}>
-                    <span {...stylex.props(s.agent)}><svg width="10" height="10" viewBox="0 0 10 10" {...stylex.props(s.chev, on && s.chevOn)} aria-hidden="true"><path d="M3 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>{a.name}</span>
+                    <span {...stylex.props(s.agent)}><span {...stylex.props(s.chev, on && s.chevOn)}><Icon icon={ArrowRight01Icon} size={18} /></span>{a.name}</span>
                     <span {...stylex.props(s.meter)}><Ticks value={v} count={20} height={18} label={`${pct(v)} of its limit`} /><span {...stylex.props(s.pct)}>{pct(v)}</span></span>
                     <span {...stylex.props(s.end)}>{usd(spentBy(a.id))}</span>
                     <span {...stylex.props(s.end, s.muted, s.wideOnly)}>{usd(limitOf(a.id))}</span>
@@ -51,7 +53,7 @@ export function Ledger() {
                 </div>
               );
             })}
-          </div>
+          </Card>
         );
       })}
     </section>
@@ -69,7 +71,7 @@ export function TeamsBrief() {
   const worst = [...rows].sort((a, b) => b.lands / b.cap - a.lands / a.cap)[0];
   return (
     <section aria-label="Spend by team" {...stylex.props(s.brief)}>
-      <TileTitle href="/ledger">{worst.lands > worst.cap ? <>{worst.name} is furthest over. <span {...stylex.props(s.muted)}>It lands {pct(worst.lands / worst.cap - 1)} past its limit.</span></> : <>Every team is inside its limit. <span {...stylex.props(s.muted)}>{worst.name} is closest.</span></>}</TileTitle>
+      <CardHead href="/ledger" title={worst.lands > worst.cap ? `${worst.name} is furthest over` : 'Every team is inside its limit'} sub={worst.lands > worst.cap ? `It lands ${pct(worst.lands / worst.cap - 1)} past its limit` : `${worst.name} is closest to its limit`} />
       <ul {...stylex.props(s.briefList)}>
         {rows.map((t) => (
           <li key={t.name} {...stylex.props(s.briefRow)}>
@@ -88,22 +90,20 @@ export function TeamsBrief() {
 const show = stylex.keyframes({ from: { opacity: 0, translate: '0 -4px' }, to: { opacity: 1, translate: '0 0' } });
 const COLS = 'minmax(0, 1.3fr) minmax(0, 1.4fr) 76px 76px 86px';
 const s = stylex.create({
-  wrap: { display: 'flex', flexDirection: 'column' },
-  title: { fontSize: { default: 26, [bp.phone]: 24 }, fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 20, textWrap: 'pretty' },
+  wrap: { display: 'flex', flexDirection: 'column', gap: { default: 16, [bp.phone]: 12 } },
+  col: { display: 'block', fontSize: 14, color: colors.muted },
   muted: { color: colors.muted },
-  heads: { display: { default: 'grid', [bp.phone]: 'none' }, gridTemplateColumns: COLS, gap: { default: 16, [bp.desk]: 28 }, fontSize: 14, color: colors.muted, paddingBottom: 10 },
   end: { textAlign: 'end' },
   bad: { color: colors.hotDeep },
-  team: { borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.ink, paddingBottom: 16 },
-  row: { width: '100%', display: 'grid', gridTemplateColumns: { default: COLS, [bp.phone]: 'minmax(0, 1fr) auto' }, gap: { default: 16, [bp.desk]: 28, [bp.phone]: 12 }, alignItems: 'center' },
-  teamRow: { paddingBlock: 16 },
+  row: { width: '100%', display: 'grid', gridTemplateColumns: { default: COLS, '@media (min-width: 768px) and (max-width: 999px)': 'minmax(0, 1fr) 160px 70px 70px 84px', [bp.phone]: 'minmax(0, 1fr) auto' }, gap: { default: 16, [bp.desk]: 28, [bp.phone]: 12 }, alignItems: 'center' },
+  teamRow: { paddingBottom: 16 },
   owner: { display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 },
   photo: { width: 40, height: 40, borderRadius: 999, objectFit: 'cover', flexShrink: 0 },
-  teamName: { display: 'block', fontSize: 17 },
+  teamName: { fontSize: 17, fontWeight: 500, lineHeight: '22px', letterSpacing: '-0.01em' },
   sub: { display: 'block', fontSize: 14, color: colors.muted },
   agentRow: { minHeight: 48, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line, paddingBlock: { default: 0, [bp.phone]: 10 }, backgroundColor: { default: 'transparent', ':hover': { default: 'transparent', '@media (hover: hover)': 'rgba(23,23,26,0.025)' } } },
-  agent: { display: 'flex', alignItems: 'center', gap: 12, paddingInlineStart: { default: 15, [bp.phone]: 0 } },
-  chev: { color: colors.muted, transitionProperty: 'rotate', transitionDuration: '200ms' },
+  agent: { display: 'flex', alignItems: 'center', gap: 12, paddingInlineStart: { default: 11, [bp.phone]: 0 } },
+  chev: { display: 'block', color: colors.muted, transitionProperty: 'rotate', transitionDuration: '200ms' },
   chevOn: { rotate: '90deg' },
   meter: { display: 'flex', alignItems: 'center', gap: 14, gridColumn: { default: 'auto', [bp.phone]: '1 / -1' }, gridRow: { default: 'auto', [bp.phone]: 2 } },
   pct: { width: 44, textAlign: 'end', color: colors.muted, fontSize: 14, flexShrink: 0 },
@@ -112,8 +112,8 @@ const s = stylex.create({
   run: { width: '100%', display: 'grid', gridTemplateColumns: { default: '130px 1fr auto', [bp.phone]: '1fr auto' }, gap: 12, minHeight: { default: 38, [bp.phone]: 48 }, alignItems: 'center', color: { default: colors.muted, ':hover': colors.ink } },
   runTime: { gridColumn: { default: 'auto', [bp.phone]: '1 / -1' }, fontSize: { default: 15, [bp.phone]: 13 }, marginBottom: { default: 0, [bp.phone]: -12 } },
   small: { width: 28, height: 28 },
-  brief: { display: 'flex', flexDirection: 'column', gap: 10, height: '100%' },
+  brief: { display: 'flex', flexDirection: 'column', gap: 12, height: '100%' },
   briefList: { display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 },
-  briefRow: { display: 'grid', gridTemplateColumns: '28px minmax(0, 96px) minmax(0, 1fr) 62px', alignItems: 'center', gap: 12, minHeight: { default: 38, [bp.phone]: 46 } },
+  briefRow: { display: 'grid', gridTemplateColumns: '28px minmax(0, 96px) minmax(0, 1fr) 62px', alignItems: 'center', gap: 12, minHeight: { default: 36, [SHORT.q]: 30, [bp.phone]: 44 } },
   more: { fontSize: 14, color: colors.muted, paddingTop: 6 },
 });

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { Ledger } from '@/components/Ledger';
-import { Band, Page } from '@/components/Page';
-import { LedgerTitle } from '@/components/Titles';
+import { Page } from '@/components/Page';
+import { PageHead } from '@/components/ui';
+import { usd } from '@/lib/format';
+import { SPENT } from '@/lib/model';
 
 export const metadata: Metadata = { title: 'Ledger | Purser' };
-export default function LedgerPage() { return <Page><Band><LedgerTitle /></Band><Band tone="paper" grow><Ledger /></Band></Page>; }
+export default function LedgerPage() { return <Page><PageHead title={`Who spent the ${usd(SPENT)}`} sub="Open an agent to see single runs." /><Ledger /></Page>; }
