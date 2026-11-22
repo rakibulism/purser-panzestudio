@@ -1,0 +1,31 @@
+{
+  "name": "purser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Purser: what your AI agents spend, and what they may do without asking.",
+  "author": "Rakibul Islam (https://rakibulism.space)",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "next dev -p 3252",
+    "build": "next build",
+    "start": "next start -p 3252",
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit && next build"
+  },
+  "dependencies": {
+    "@stylexjs/stylex": "0.19.2",
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@stylexjs/babel-plugin": "0.19.2",
+    "@stylexjs/postcss-plugin": "0.19.2",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}
