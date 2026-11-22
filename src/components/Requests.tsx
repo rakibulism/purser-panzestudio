@@ -6,7 +6,9 @@ import { squircle } from '@/lib/geometry';
 import { usd } from '@/lib/format';
 import { useStore, type Decision } from '@/lib/store';
 import { bp, colors, ease } from '@/styles/tokens.stylex';
-import { Button, TileTitle } from './ui';
+import { Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons';
+import { Card } from './Page';
+import { Button, CardHead } from './ui';
 
 /** Outer shape: what it asks for. Dotted shape: what it may do without asking. Areas are to scale. */
 function Authority({ r, amount, mini = false }: { r: Request; amount: number; mini?: boolean }) {
@@ -58,8 +60,8 @@ function Open({ r }: { r: Request }) {
         </div>
       )}
       <div {...stylex.props(s.actions)}>
-        <Button disabled={unchanged} onClick={() => decide(r.id, { kind: 'allow', amount, standing }, said)}>{full ? `Allow ${usd(amount)}` : `Allow up to ${usd(amount)}`}</Button>
-        <Button kind="line" onClick={() => decide(r.id, { kind: 'refuse', amount: 0, standing: false }, `${agent.name} was refused`)}>Refuse</Button>
+        <Button disabled={unchanged} icon={Tick02Icon} onClick={() => decide(r.id, { kind: 'allow', amount, standing }, said)}>{full ? `Allow ${usd(amount)}` : `Allow up to ${usd(amount)}`}</Button>
+        <Button kind="line" icon={Cancel01Icon} onClick={() => decide(r.id, { kind: 'refuse', amount: 0, standing: false }, `${agent.name} was refused`)}>Refuse</Button>
       </div>
     </div>
   );
@@ -77,7 +79,7 @@ export function RequestsBrief() {
   const { decisions, waiting, decide } = useStore();
   return (
     <section aria-label="Requests" {...stylex.props(s.brief)}>
-      <TileTitle href="/requests">{waiting === 0 ? 'Nothing is waiting on you.' : `${waiting === 1 ? 'One agent is' : waiting === 2 ? 'Two agents are' : 'Three agents are'} waiting on you.`}</TileTitle>
+      <CardHead href="/requests" title={waiting === 0 ? 'Nothing is waiting on you' : `${waiting === 1 ? 'One agent is' : waiting === 2 ? 'Two agents are' : 'Three agents are'} waiting on you`} sub={waiting === 0 ? 'New requests land here' : 'Decide here, or open to change the amount'} />
       <ul {...stylex.props(s.briefList)}>
         {REQUESTS.map((r) => {
           const d = decisions[r.id], agent = agentById(r.agent);
@@ -90,8 +92,8 @@ export function RequestsBrief() {
                     <Authority r={r} amount={r.alone} mini />
                   </div>
                   <div {...stylex.props(s.briefActions)}>
-                    <Button size="small" onClick={() => decide(r.id, { kind: 'allow', amount: r.ask, standing: false }, r.kind === 'budget' ? `${agent.name} may spend ${usd(r.ask)} in November` : `${agent.name} may ${r.verb} up to ${usd(r.ask)} this time`)}>Allow</Button>
-                    <Button size="small" kind="line" onClick={() => decide(r.id, { kind: 'refuse', amount: 0, standing: false }, `${agent.name} was refused`)}>Refuse</Button>
+                    <Button size="small" icon={Tick02Icon} onClick={() => decide(r.id, { kind: 'allow', amount: r.ask, standing: false }, r.kind === 'budget' ? `${agent.name} may spend ${usd(r.ask)} in November` : `${agent.name} may ${r.verb} up to ${usd(r.ask)} this time`)}>Allow</Button>
+                    <Button size="small" kind="line" icon={Cancel01Icon} onClick={() => decide(r.id, { kind: 'refuse', amount: 0, standing: false }, `${agent.name} was refused`)}>Refuse</Button>
                     <span {...stylex.props(s.due, s.now)}>{r.now}</span>
                   </div>
                 </>
@@ -113,9 +115,7 @@ export function Requests() {
         const d = decisions[r.id];
         return (
           <li key={r.id} {...stylex.props(s.column)}>
-            <h2 {...stylex.props(s.headText)}>{r.title}</h2>
-            <p {...stylex.props(s.due)}>{r.due}</p>
-            {d ? <p {...stylex.props(s.done)}>{outcome(r, d)}</p> : <Open r={r} />}
+            <Card style={s.full}><CardHead title={r.title} sub={r.due} />{d ? <p {...stylex.props(s.done)}>{outcome(r, d)}</p> : <Open r={r} />}</Card>
           </li>
         );
       })}
@@ -126,9 +126,9 @@ export function Requests() {
 const show = stylex.keyframes({ from: { opacity: 0, translate: '0 -6px' }, to: { opacity: 1, translate: '0 0' } });
 const thumb = { appearance: 'none', width: 28, height: 28, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 7, borderStyle: 'solid', borderColor: '#4F6F5B', cursor: 'grab' } as const;
 const s = stylex.create({
-  columns: { display: 'grid', gridTemplateColumns: { default: '1fr', '@media (min-width: 1000px)': 'repeat(3, minmax(0, 1fr))' }, gap: { default: 0, '@media (min-width: 1000px)': 40 } },
-  column: { paddingBlock: { default: 22, '@media (min-width: 1000px)': 18 }, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.ink, display: 'flex', flexDirection: 'column' },
-  headText: { fontSize: 19, lineHeight: 1.3, letterSpacing: '-0.01em', textWrap: 'pretty', minHeight: { default: 0, '@media (min-width: 1000px)': 50 } },
+  columns: { display: 'grid', gap: { default: 16, [bp.phone]: 12 }, gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'repeat(3, minmax(0, 1fr))' } },
+  column: { display: 'grid' },
+  full: { display: 'flex', flexDirection: 'column' },
   due: { fontSize: 14, color: colors.muted },
   body: { paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 16, flex: 1, animationName: show, animationDuration: '320ms', animationTimingFunction: ease.out },
   top: { display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'stretch', gap: 16 },
@@ -137,8 +137,8 @@ const s = stylex.create({
   big: { fontSize: { default: 37, '@media (min-width: 1000px) and (max-width: 1399px)': 32 }, fontWeight: 300, letterSpacing: '-0.04em', lineHeight: 1 },
   cap: { marginTop: 8, color: colors.ink },
   small: { fontSize: 14, color: colors.muted },
-  art: { width: { default: 148, '@media (min-width: 1000px) and (max-width: 1399px)': 108 }, flexShrink: 0 },
-  mini: { width: { default: 46, '@media (min-width: 1200px) and (max-height: 879px)': 38 }, flexShrink: 0 },
+  art: { width: { default: 148, [bp.phone]: 112, '@media (min-width: 1000px) and (max-width: 1399px)': 88 }, flexShrink: 0 },
+  mini: { display: { default: 'block', '@media (min-width: 1200px) and (max-width: 1279px)': 'none' }, width: { default: 46, '@media (min-width: 1200px) and (max-height: 879px)': 38 }, flexShrink: 0 },
   slide: { display: 'block' },
   hidden: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)' },
   range: { appearance: 'none', display: 'block', width: '100%', height: 4, marginBlock: 12, marginInline: 0, borderRadius: 2, cursor: 'pointer', backgroundRepeat: 'no-repeat', '::-webkit-slider-thumb': thumb, '::-moz-range-thumb': thumb },
@@ -151,10 +151,10 @@ const s = stylex.create({
   done: { paddingBlock: 16, color: colors.muted, textWrap: 'pretty' },
   brief: { display: 'flex', flexDirection: 'column', gap: { default: 12, '@media (min-width: 1200px) and (max-height: 879px)': 8 }, height: '100%' },
   briefList: { display: 'flex', flexDirection: 'column', flex: 1 },
-  briefItem: { flex: 1, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line, paddingBlock: { default: 11, '@media (min-width: 1200px) and (max-height: 879px)': 7 }, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: { default: 8, '@media (min-width: 1200px) and (max-height: 879px)': 3 } },
-  briefTop: { display: 'flex', justifyContent: 'space-between', gap: 12 },
+  briefItem: { flex: 1, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line, paddingTop: { default: 12, '@media (min-width: 1200px) and (max-height: 879px)': 7 }, paddingBottom: { default: 12, '@media (min-width: 1200px) and (max-height: 879px)': 7, ':last-child': 0 }, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: { default: 8, '@media (min-width: 1200px) and (max-height: 879px)': 4 } },
+  briefTop: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
   briefText: { lineHeight: 1.25, fontSize: { default: 15, '@media (min-width: 1200px) and (max-height: 879px)': 14 }, textWrap: 'pretty' },
-  roomy: { display: { default: 'none', '@media (min-width: 768px) and (max-width: 1199px)': '-webkit-box', '@media (min-width: 1200px) and (min-height: 960px)': '-webkit-box' }, WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', marginTop: 6, color: colors.muted, fontSize: 14 },
-  now: { marginInlineStart: 'auto', whiteSpace: 'nowrap' },
+  roomy: { display: { default: 'none', '@media (min-width: 1400px) and (min-height: 960px)': '-webkit-box' }, WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', marginTop: 6, color: colors.muted, fontSize: 14 },
+  now: { display: { default: 'inline', '@media (max-width: 439px)': 'none', '@media (min-width: 768px) and (max-width: 1359px)': 'none' }, marginInlineStart: 'auto', whiteSpace: 'nowrap' },
   briefActions: { display: 'flex', alignItems: 'center', gap: 8 },
 });

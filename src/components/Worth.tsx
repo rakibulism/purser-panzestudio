@@ -9,7 +9,8 @@ import { num } from '@/lib/format';
 import { useStore } from '@/lib/store';
 import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
-import { PageTitle, TileTitle } from './ui';
+import { Card, Columns } from './Page';
+import { CardHead } from './ui';
 
 const U = 140, N = AGENTS.length, HALF = Math.PI / N;
 const sorted = [...AGENTS].sort((a, b) => ratio(b) - ratio(a));
@@ -50,11 +51,9 @@ export function Worth() {
   const { selected, select } = useStore();
   const pick = (id: AgentId) => select(selected === id ? null : id);
   return (
-    <section aria-label="Cost per job" {...stylex.props(s.wrap)}>
-      <PageTitle lead="Six agents cost less than what they replaced." rest="Two cost more, and they stop first." />
-      <div {...stylex.props(s.grid)}>
-        <Radar />
-        <div>
+    <Columns>
+      <Card><section aria-label="Cost per job" {...stylex.props(s.wrap)}><CardHead title="Cost beside the old way" sub="The gray shape is the old cost. A point outside it costs more now" /><Radar /></section></Card>
+      <Card><section aria-label="Every agent" {...stylex.props(s.wrap)}><CardHead title="Every agent, by finished job" sub="This month with waste included, beside last year" />
           <ul>
             {sorted.map((a) => {
               const r = ratio(a), loses = r > 1;
@@ -69,10 +68,8 @@ export function Worth() {
               );
             })}
           </ul>
-          <p {...stylex.props(s.foot)}>Cost of one finished job this month, waste included, beside what the same job cost last year.</p>
-        </div>
-      </div>
-    </section>
+      </section></Card>
+    </Columns>
   );
 }
 
@@ -82,7 +79,7 @@ export function WorthBrief() {
   const rows = [...sorted.slice(0, 2), ...sorted.slice(-2).reverse()];
   return (
     <section aria-label="Cost per job" {...stylex.props(s.brief)}>
-      <TileTitle href="/agents">Two agents cost more <span {...stylex.props(s.muted)}>than before.</span></TileTitle>
+      <CardHead href="/agents" title="Two agents cost more than before" sub="Cost of one finished job, beside last year" />
       <div {...stylex.props(s.briefBody)}>
         <Radar brief />
         <ul {...stylex.props(s.briefList)}>
@@ -97,11 +94,8 @@ export function WorthBrief() {
 }
 
 const s = stylex.create({
-  wrap: { display: 'flex', flexDirection: 'column', gap: 24 },
-  title: { fontSize: { default: 26, [bp.phone]: 24 }, fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.15, textWrap: 'pretty' },
-  muted: { color: colors.muted },
-  grid: { display: 'grid', gridTemplateColumns: { default: '1fr', '@media (min-width: 1000px)': 'minmax(0, 1.1fr) minmax(0, 1fr)' }, gap: { default: 24, [bp.desk]: 56 }, alignItems: 'center' },
-  svg: { width: '100%', maxWidth: 640, marginInline: 'auto', overflow: 'visible' },
+  wrap: { display: 'flex', flexDirection: 'column', gap: 16, height: '100%' },
+  svg: { width: '100%', maxWidth: 600, margin: 'auto', overflow: 'visible' },
   axis: { fontSize: { default: 15, [bp.phone]: 22 }, fill: colors.muted },
   axisOn: { fill: colors.ink },
   row: { width: '100%', display: 'grid', gridTemplateColumns: { default: '1fr 132px 88px', [bp.phone]: '1fr auto 78px' }, gap: 12, alignItems: 'center', paddingBlock: 10, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line, transitionProperty: 'opacity', transitionDuration: '200ms', minHeight: 44 },
@@ -112,10 +106,9 @@ const s = stylex.create({
   was: { fontSize: 14, color: colors.muted },
   delta: { textAlign: 'end', color: colors.muted, whiteSpace: 'nowrap' },
   bad: { color: colors.hotDeep },
-  svgBrief: { height: '100%', width: 'auto', maxWidth: '38%', minHeight: 0, flexShrink: 0, overflow: 'visible' },
-  brief: { display: 'flex', flexDirection: 'column', gap: 10, height: '100%', minHeight: 0 },
-  briefBody: { display: 'flex', alignItems: 'center', gap: 14, flex: 1, minHeight: { default: 0, [bp.phone]: 170 }, height: { default: 0, [bp.phone]: 170 } },
-  briefList: { flex: 1, minWidth: 0, fontSize: { default: 15, '@media (min-width: 1200px) and (max-width: 1399px)': 13 } },
-  briefRow: { width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, minHeight: { default: 37, '@media (min-width: 1200px) and (max-width: 1399px)': 34, [bp.phone]: 44 }, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: colors.line, transitionProperty: 'opacity', transitionDuration: '200ms' },
-  foot: { fontSize: 14, color: colors.muted, paddingTop: 14, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line, textWrap: 'pretty' },
+  svgBrief: { height: '100%', width: 'auto', maxWidth: { default: '32%', '@media (min-width: 1200px) and (max-width: 1339px)': '24%' }, minHeight: 0, flexShrink: 0, overflow: 'visible' },
+  brief: { display: 'flex', flexDirection: 'column', gap: 12, height: '100%', minHeight: 0 },
+  briefBody: { display: 'flex', alignItems: 'center', gap: { default: 14, '@media (min-width: 1200px) and (max-width: 1339px)': 10 }, flex: 1, minHeight: { default: 0, [bp.phone]: 170 }, height: { default: 0, [bp.phone]: 170 } },
+  briefList: { flex: 1, minWidth: 0, fontSize: { default: 14, '@media (min-width: 1200px) and (max-width: 1339px)': 13 } },
+  briefRow: { width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, minHeight: { default: 36, '@media (min-width: 1200px) and (max-height: 879px)': 30, [bp.phone]: 44 }, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: colors.line, transitionProperty: 'opacity', transitionDuration: '200ms' },
 });
