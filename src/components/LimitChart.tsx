@@ -6,7 +6,6 @@ import { cap, num, onDay, usd, weekday, whoStops } from '@/lib/format';
 import { useEased, useSize } from '@/lib/hooks';
 import { SPENT, forecast, planFor } from '@/lib/model';
 import { useStore } from '@/lib/store';
-import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
 import { ArrowTurnBackwardIcon, StopIcon, Tick02Icon } from '@hugeicons/core-free-icons';
 import { Card, Columns } from './Page';
@@ -66,7 +65,7 @@ export function LimitChart({ brief = false }: { brief?: boolean }) {
           <svg ref={svg} width={w} height={H} role="group" aria-label="Spend by day in November, with the limit" {...stylex.props(s.svg, (brief || !narrow) && s.svgBrief)}
             onPointerMove={(e) => { if (grab.current) return; const r = e.currentTarget.getBoundingClientRect(); const i = Math.floor((e.clientX - r.left) / slot); setHover(i >= 0 && i < MONTH_DAYS ? i : null); }}
             onPointerLeave={() => setHover(null)}>
-            <defs><linearGradient id={`${uid}g`} x1="0" y1="0" x2="0" y2="1"><stop stopColor={HEX.rose} /><stop offset="1" stopColor={HEX.hot} /></linearGradient></defs>
+            <defs><linearGradient id={`${uid}g`} x1="0" y1="0" x2="0" y2="1"><stop stopColor={colors.rose} /><stop offset="1" stopColor={colors.hot} /></linearGradient></defs>
             {!narrow && [0, 50_000, 100_000, 150_000, 200_000].map((v) => <text key={v} x={w} y={y(v) + 4} textAnchor="end" {...stylex.props(s.axis)}>{v ? `$${v / 1000}k` : '$0'}</text>)}
             {bars.map((v, i) => {
               const x = i * slot + (slot - bw) / 2;
@@ -75,7 +74,7 @@ export function LimitChart({ brief = false }: { brief?: boolean }) {
               const ghost = free.days[i] - plan.days[i] > 1;
               return (
                 <g key={i} opacity={hover !== null && hover !== i && !last ? 0.6 : 1}>
-                  {ghost && <rect x={x + 0.5} y={y(free.days[i])} width={bw - 1} height={Math.max(0, y(v) - y(free.days[i]) - 2)} rx={3} fill="none" stroke={HEX.hot} strokeWidth={1.2} strokeDasharray="1.5 3" />}
+                  {ghost && <rect x={x + 0.5} y={y(free.days[i])} width={bw - 1} height={Math.max(0, y(v) - y(free.days[i]) - 2)} rx={3} fill="none" stroke={colors.hot} strokeWidth={1.2} strokeDasharray="1.5 3" />}
                   <rect x={x} y={y(v)} width={bw} height={base - y(v)} rx={Math.min(4, bw / 3)} fill={last ? `url(#${uid}g)` : i < LAST ? colors.bar : colors.barSoft} />
                 </g>
               );
@@ -87,7 +86,7 @@ export function LimitChart({ brief = false }: { brief?: boolean }) {
               onKeyDown={keys} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} {...stylex.props(s.handle)}>
               <rect x={0} y={ly - 14} width={plotW} height={28} fill="transparent" />
               <circle cx={hx} cy={ly} r={24} fill="transparent" />
-              <circle cx={hx} cy={ly} r={11} fill="#fff" stroke={colors.ink} strokeWidth={1.5} {...stylex.props(s.knob)} />
+              <circle cx={hx} cy={ly} r={11} fill={colors.thumb} stroke={colors.ink} {...stylex.props(s.knob)} />
               <path d={`M${hx - 3.5} ${ly - 2}L${hx} ${ly - 5.5}L${hx + 3.5} ${ly - 2}M${hx - 3.5} ${ly + 2}L${hx} ${ly + 5.5}L${hx + 3.5} ${ly + 2}`} fill="none" stroke={colors.ink} strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" />
             </g>
           </svg>
@@ -157,15 +156,15 @@ const s = stylex.create({
   briefBig: { fontSize: 32, lineHeight: '38px', fontWeight: 300, letterSpacing: '-0.035em' },
   svg: { overflow: 'visible', touchAction: 'pan-y', userSelect: 'none' },
   axis: { fontSize: 13, fill: colors.muted },
-  limitText: { fontSize: 14, fill: colors.ink, paintOrder: 'stroke', stroke: '#FFFFFF', strokeWidth: 5, strokeLinejoin: 'round' },
-  handle: { cursor: { default: 'ns-resize' }, touchAction: 'none' },
-  knob: { transitionProperty: 'r', transitionDuration: '160ms', r: { default: 11, ':hover': 13 } },
-  tip: { position: 'absolute', bottom: 44, translate: '-50% 0', pointerEvents: 'none', display: 'flex', flexDirection: 'column', backgroundColor: '#FFFFFF', borderWidth: 1, borderStyle: 'solid', borderColor: colors.line, borderRadius: 10, paddingInline: 12, paddingBlock: 8, fontSize: 13, whiteSpace: 'nowrap' },
+  limitText: { fontSize: 14, fill: colors.ink, paintOrder: 'stroke', stroke: colors.paper, strokeWidth: 5, strokeLinejoin: 'round' },
+  handle: { cursor: 'ns-resize', touchAction: 'none', outlineStyle: { default: null, ':focus-visible': 'none' }, '--knob': { default: '1.5px', ':focus-visible': '4px' } },
+  knob: { strokeWidth: 'var(--knob)', transitionProperty: 'r', transitionDuration: '160ms', r: { default: 11, ':hover': 13 } },
+  tip: { position: 'absolute', bottom: 44, translate: '-50% 0', pointerEvents: 'none', display: 'flex', flexDirection: 'column', backgroundColor: colors.raised, borderWidth: 1, borderStyle: 'solid', borderColor: colors.line, borderRadius: 10, paddingInline: 12, paddingBlock: 8, fontSize: 13, whiteSpace: 'nowrap' },
   side: { display: 'flex', flexDirection: 'column', gap: 20, height: '100%' },
   big: { fontSize: 44, fontWeight: 300, letterSpacing: '-0.04em', lineHeight: 1 },
   stops: { borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: colors.line },
   stop: { display: 'grid', gridTemplateColumns: '1fr auto', columnGap: 12, paddingBlock: 9, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: colors.line },
-  when: { color: colors.hotDeep },
+  when: { color: colors.hotText },
   undone: { gridColumn: '1 / -1', fontSize: 14, color: colors.muted },
   actions: { display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 'auto' },
   small: { fontSize: 14, color: colors.muted, textWrap: 'pretty' },

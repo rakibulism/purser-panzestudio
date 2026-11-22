@@ -17,7 +17,7 @@ export function renderOgCard() {
   return new ImageResponse(
     <div style={{ width: '100%', height: '100%', display: 'flex', background: HEX.ground, color: HEX.ink }}>
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 600, padding: '64px 0 64px 72px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 38 }}><Mark size={48} />{SITE.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 38 }}><Mark size={48} ink={HEX.ink} />{SITE.name}</div>
         <div style={{ display: 'flex', flexDirection: 'column', fontSize: 58, letterSpacing: -2, lineHeight: 1.14 }}>
           <div style={{ display: 'flex' }}>November lands</div>
           <div style={{ display: 'flex' }}>at {usd(landing)}.</div>

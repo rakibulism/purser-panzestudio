@@ -5,7 +5,6 @@ import { LOOP, TODAY } from '@/lib/data';
 import { arc, at } from '@/lib/geometry';
 import { num, onDay, usd } from '@/lib/format';
 import { useStore } from '@/lib/store';
-import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
 import { PlayIcon, PowerIcon } from '@hugeicons/core-free-icons';
 import { Button, CardHead } from './ui';
@@ -20,10 +19,10 @@ function LoopArt({ still, brief = false }: { still: boolean; brief?: boolean }) 
   return (
       <svg viewBox={brief ? "-182 -182 364 364" : "-200 -196 400 392"} {...stylex.props(brief ? s.artBrief : s.art)} role="img" aria-label={`The loop: reads page 88, asks for a rescan, gets the same file. It ran from ${LOOP.from} to ${LOOP.to}.`}>
         <defs>
-          <linearGradient id={`${uid}g`}><stop offset="0" stopColor={HEX.rose} /><stop offset="0.45" stopColor="#FC7270" /><stop offset="1" stopColor="#FE5C41" /></linearGradient>
+          <linearGradient id={`${uid}g`}><stop offset="0" stopColor={colors.rose} /><stop offset="0.45" stopColor={colors.fieldMid} /><stop offset="1" stopColor={colors.fieldEnd} /></linearGradient>
           <filter id={`${uid}b`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="17" /></filter>
         </defs>
-        <rect x={-104} y={-104} width={208} height={204} rx={18} fill={`url(#${uid}g)`} filter={`url(#${uid}b)`} />
+        <rect x={brief ? -104 : -124} y={brief ? -104 : -116} width={brief ? 208 : 248} height={brief ? 204 : 228} rx={20} fill={`url(#${uid}g)`} filter={`url(#${uid}b)`} />
         <circle r={172} fill="none" stroke="#fff" strokeOpacity={0.5} />
         {Array.from({ length: 12 }, (_, i) => { const [x1, y1] = at(172, (i / 12) * Math.PI * 2); const [x2, y2] = at(165, (i / 12) * Math.PI * 2); return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fff" strokeOpacity={0.6} />; })}
         <path d={arc(172, CLOCK(0, 6), CLOCK(3, 12))} fill="none" stroke="#fff" strokeWidth={brief ? 8 : 5} strokeLinecap="round" />
@@ -31,7 +30,7 @@ function LoopArt({ still, brief = false }: { still: boolean; brief?: boolean }) 
         {!brief && <text x={198} y={46} textAnchor="end" {...stylex.props(s.time)}>{LOOP.to}</text>}
         {spots.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={R} fill="none" stroke="#fff" strokeWidth={brief ? 2.6 : 1.6} strokeDasharray={i === 2 ? '4 4' : undefined} />)}
         <g {...stylex.props(s.spin, still && s.still)}><circle cx={0} cy={-118} r={brief ? 9 : 5} fill="#fff" /></g>
-        {!brief && spots.map(([x, y], i) => { const k = 1.36; return words[i].map((t, j) => <text key={t} x={Math.round(x * k)} y={Math.round(y * k) + j * 17 - 3} textAnchor="middle" {...stylex.props(s.word)}>{t}</text>); })}
+        {!brief && spots.map(([x, y], i) => { const k = 1.24; return words[i].map((t, j) => <text key={t} x={Math.round(x * k)} y={Math.round(y * k) + j * 17 - 3} textAnchor="middle" {...stylex.props(s.word)}>{t}</text>); })}
       </svg>
   );
 }
@@ -81,10 +80,10 @@ const s = stylex.create({
   wrap: { display: 'grid', gridTemplateColumns: { default: 'minmax(0, 1fr)', '@media (min-width: 1000px)': 'minmax(0, 1fr) minmax(0, 1fr)' }, gap: 28, alignItems: 'center', },
   words: { display: 'flex', flexDirection: 'column', gap: 20 },
   huge: { display: 'block', fontSize: 44, lineHeight: 1.1, fontWeight: 300, letterSpacing: '-0.04em' },
-  soft: { color: '#2B3A2F' },
+  soft: { color: colors.onSageSoft },
   art: { width: '100%', maxWidth: 420, marginInline: 'auto', overflow: 'visible' },
-  time: { fontSize: 14, fill: colors.ink },
-  word: { fontSize: 15, fill: colors.ink },
+  time: { fontSize: 14, fill: colors.onSage },
+  word: { fontSize: 15, fill: colors.onHot },
   spin: { transformOrigin: '0 0', animationName: turn, animationDuration: '7s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' },
   still: { animationName: 'none' },
   artBrief: { position: 'absolute', insetInlineEnd: 0, top: 0, width: 'auto', height: { default: 'calc(100% - 40px)', [bp.phone]: 'calc(100% - 52px)' }, maxWidth: '46%', overflow: 'visible' },

@@ -7,7 +7,6 @@ import { usdc } from '@/lib/format';
 import { costPerJob, jobsBy, ratio } from '@/lib/model';
 import { num } from '@/lib/format';
 import { useStore } from '@/lib/store';
-import { HEX } from '@/styles/brand';
 import { bp, colors } from '@/styles/tokens.stylex';
 import { Card, Columns } from './Page';
 import { CardHead } from './ui';
@@ -24,16 +23,16 @@ function Radar({ brief = false }: { brief?: boolean }) {
         <svg viewBox={brief ? "-262 -256 524 524" : "-330 -300 660 600"} {...stylex.props(brief ? s.svgBrief : s.svg)} role="img" aria-label="Cost per finished job compared with before, for each agent. The list beside this chart has the values.">
           <defs>{[0.25, 0.5, 0.75].map((k) => <clipPath key={k} id={`${uid}${k * 100}`}><path d={polygon(Array(N).fill(U * k))} /></clipPath>)}</defs>
           <g transform={`rotate(${(HALF * 180) / Math.PI})`}>
-            <path d={polygon(Array(N).fill(U))} fill="#D6D6D4" />
-            {[0.75, 0.5, 0.25].map((k) => <path key={k} d={polygon(Array(N).fill(U * k))} fill="#CDCDCB" opacity={0.7} />)}
-            <path d={shape} fill={HEX.hot} opacity={0.42} />
-            {[0.75, 0.5, 0.25].map((k) => <path key={k} d={shape} fill={HEX.hot} opacity={0.16} clipPath={`url(#${uid}${k * 100})`} />)}
+            <path d={polygon(Array(N).fill(U))} fill={colors.radarOld} />
+            {[0.75, 0.5, 0.25].map((k) => <path key={k} d={polygon(Array(N).fill(U * k))} fill={colors.radarIn} opacity={0.7} />)}
+            <path d={shape} fill={colors.hot} opacity={0.42} />
+            {[0.75, 0.5, 0.25].map((k) => <path key={k} d={shape} fill={colors.hot} opacity={0.16} clipPath={`url(#${uid}${k * 100})`} />)}
             {AGENTS.map((a, i) => {
               const t = (i / N) * Math.PI * 2;
               const [x, y] = at(U * 1.86, t);
-              return <g key={a.id}><line x1={0} y1={0} x2={x} y2={y} stroke="#6E6E6B" strokeWidth={brief ? 2.4 : 1.3} strokeDasharray="0.1 5" strokeLinecap="round" /><path d="M-4.5 4L0 -7L4.5 4L0 1.6Z" transform={`translate(${x} ${y}) rotate(${(t * 180) / Math.PI})`} fill="#6E6E6B" /></g>;
+              return <g key={a.id}><line x1={0} y1={0} x2={x} y2={y} stroke={colors.axis} strokeWidth={brief ? 2.4 : 1.3} strokeDasharray="0.1 5" strokeLinecap="round" /><path d="M-4.5 4L0 -7L4.5 4L0 1.6Z" transform={`translate(${x} ${y}) rotate(${(t * 180) / Math.PI})`} fill={colors.axis} /></g>;
             })}
-            {AGENTS.map((a, i) => { const [x, y] = at(ratio(a) * U, (i / N) * Math.PI * 2); return <circle key={a.id} cx={x} cy={y} r={(selected === a.id ? 9 : 5.5) * (brief ? 1.7 : 1)} fill={ratio(a) > 1 ? HEX.hot : '#fff'} stroke={HEX.hot} strokeWidth={1.5} />; })}
+            {AGENTS.map((a, i) => { const [x, y] = at(ratio(a) * U, (i / N) * Math.PI * 2); return <circle key={a.id} cx={x} cy={y} r={(selected === a.id ? 9 : 5.5) * (brief ? 1.7 : 1)} fill={ratio(a) > 1 ? colors.hot : colors.paper} stroke={colors.hot} strokeWidth={1.5} />; })}
           </g>
           {!brief && AGENTS.map((a, i) => {
             const t = ((i + 0.5) / N) * Math.PI * 2;
@@ -105,7 +104,7 @@ const s = stylex.create({
   cost: { display: 'flex', flexDirection: 'column', textAlign: 'end' },
   was: { fontSize: 14, color: colors.muted },
   delta: { textAlign: 'end', color: colors.muted, whiteSpace: 'nowrap' },
-  bad: { color: colors.hotDeep },
+  bad: { color: colors.hotText },
   svgBrief: { height: '100%', width: 'auto', maxWidth: { default: '32%', '@media (min-width: 1200px) and (max-width: 1339px)': '24%' }, minHeight: 0, flexShrink: 0, overflow: 'visible' },
   brief: { display: 'flex', flexDirection: 'column', gap: 12, height: '100%', minHeight: 0 },
   briefBody: { display: 'flex', alignItems: 'center', gap: { default: 14, '@media (min-width: 1200px) and (max-width: 1339px)': 10 }, flex: 1, minHeight: { default: 0, [bp.phone]: 170 }, height: { default: 0, [bp.phone]: 170 } },
